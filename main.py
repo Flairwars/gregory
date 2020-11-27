@@ -22,16 +22,11 @@ def get_datetime(str):
         if index != -1:
             lst.append({index:time})
 
-    
-        
-
-    
-
-
 
 @client.event
 async def on_ready():
     print('Bot is ready')
+
 
 @client.command()
 async def test(ctx, *args):
