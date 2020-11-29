@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-class base_commands(commands.Cog):
+class base_commands(commands.Cog,name='basic'):
     """
     Generic commands. not much function
     """

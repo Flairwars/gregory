@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-class persistant_role(commands.Cog):
+class persistant_role(commands.Cog, name='commands for persistant roles'):
     """
     comands and functions for the persistant roles
     """
