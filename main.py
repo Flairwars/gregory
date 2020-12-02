@@ -29,10 +29,6 @@ async def on_command_error(ctx,error):
 '''
 
 
-# checks
-def is_owner(ctx):
-    return ctx.author.id == 510539578827079680
-
 # Loading and unloading of cogs for testing
 @client.command()
 @commands.is_owner()

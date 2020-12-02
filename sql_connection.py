@@ -115,7 +115,7 @@ class sql_class():
         self.cursor.execute(sql, user_id)
         data = self.cursor.fetchall()
         if data:
-            return data[0]
+            return data
         else:
             return []
     
