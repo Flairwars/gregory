@@ -8,12 +8,14 @@ class persistant_role(commands.Cog, name='commands for persistant roles'):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
+    @event.on_member_join(message)
     async def on_member_join(self, member):
         """
         auto runs when members run
         """
-        pass
+        channel = member.guild.system_channel
+        if channel is not None:
+            await channel.send('Welcome {0.mention}.'.format(member))
         #await channel.send('Welcome {0.mention}.'.format(member))
         
 
@@ -24,8 +26,3 @@ class persistant_role(commands.Cog, name='commands for persistant roles'):
         sends link to the github repo
         """
         pass
-
-
-
-def setup(bot):
-    bot.add_cog(persistant_role(bot))
