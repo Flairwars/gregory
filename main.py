@@ -8,7 +8,6 @@ bot = commands.Bot(command_prefix = '%')
 base.setup(bot)
 roles.setup(bot)
 
-##########################################################
 
 #prints when bot has started up
 @bot.event
