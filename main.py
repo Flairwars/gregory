@@ -24,20 +24,24 @@ def is_owner(ctx):
 async def on_ready():
     print('bot done')
 
+'''
 # error handleing 
 @client.event
 async def on_command_error(ctx,error):
     pass
+'''
 
-# loads a cog
+# Loading and unloading of cogs for testing
 @client.command()
 @commands.check(is_owner)
 async def load(ctx, cog):
     '''
     loads a catagory of commands
     '''
+    print(f'loading {cog}...')
     client.load_extension(f'commands.{cog}')
     await ctx.send(f'successfully loaded {cog}')
+    print('success!')
 
 
 @client.command()
@@ -46,8 +50,10 @@ async def unload(ctx, cog):
     '''
     unloads a catagory of commands
     '''
+    print(f'unloading {cog}...')
     client.unload_extension(f'commands.{cog}')
     await ctx.send(f'successfully unloaded {cog}')
+    print('success!')
 
 @client.command()
 @commands.check(is_owner)
@@ -55,8 +61,30 @@ async def reload(ctx, cog):
     '''
     reloads a catagory of commands
     '''
+    print(f'reloading {cog}...')
     client.unload_extension(f'commands.{cog}')
     client.load_extension(f'commands.{cog}')
     await ctx.send(f'successfully reloaded {cog}')
+    print('success!')
+
+# Loading and unloading of cogs Error handling
+@load.error
+async def load_error(ctx, error):
+    if isinstance(error, commands.CommandInvokeError):
+        await ctx.send('ERROR: cog has not been loaded')
+    print('failure!')
+
+@unload.error
+async def unload_error(ctx, error):
+    if isinstance(error, commands.CommandInvokeError):
+        await ctx.send('ERROR: cog has not been unloaded')
+    print('failure!')
+
+@reload.error
+async def reload_error(ctx, error):
+    if isinstance(error, commands.CommandInvokeError):
+        await ctx.send('ERROR: cog has not been reloaded')
+    print('failure!')
+
 
 client.run(config('TOKEN'))
