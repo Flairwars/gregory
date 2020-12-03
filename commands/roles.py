@@ -45,7 +45,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
 
             if db_membername == None:
                 sql.add_user(memberid , membername)
-            elif db_membername != membername:# if the user has changed name, it updates the name
+            elif db_membername != membername:
                 sql.update_user_name(memberid, membername)
         
             # checks for different roles in user_role table
@@ -139,7 +139,6 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         member_roleList = sql.get_user_role(str(member.id))
 
         await self.client.add_roles(member, member_roleList)
-
 
 
 def setup(client):
