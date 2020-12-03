@@ -10,7 +10,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
     def __init__(self, client):
         self.client = client
         self.server_id = 780836834635677708 # this is the server id of the current server that it is running on
-        self.update_database.start()
+        #self.update_database.start()
 
     @tasks.loop(minutes=30)
     async def update_database(self):
@@ -21,45 +21,64 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         await asyncio.sleep(1)
 
         
-        sql = sql_class()# initalise sql class 
-        guild = self.client.get_guild(self.server_id)# getting guild class from discord servers
+        sql = sql_class()
+        guild = self.client.get_guild(self.server_id)
 
-        for role in guild.roles:# loops for the number of roles on the discord server
-            role_name = sql.get_role(str(role.id))# makes a request to the server seeing if it exists
+        # checks for new roles and updates their names in the db
+        for role in guild.roles:
+            roleid = str(role.id)
+            rolename = role.name
 
-            if role_name == None:# if it doesnt exist, it addes it
-                sql.add_role(str(role.id) , role.name)
-            elif role_name != role.name:# if the roles has changed name, it updates the name
+            db_rolename = sql.get_role(roleid)
+
+            if db_rolename == None:
+                sql.add_role(roleid , rolename)
+            elif db_rolename != role.name:
                 sql.update_role_name(str(role.id), role.name)
 
-        # update list of users
-        for member in guild.members:# loops for the number of users on the discord server
+        # checks for new members and updates their names in the db
+        for member in guild.members:
+            memberid = str(member.id)
+            membername = member.name
 
-            user_name = sql.get_user(str(member.id))# makes a request to the server seeing if it exists
+            db_membername = sql.get_user(memberid)
 
-            if user_name == None:# if it doesnt exist, it adds it
-                sql.add_user(str(member.id) , member.name)
-            elif user_name != member.name:# if the user has changed name, it updates the name
-                sql.update_user_name(str(member.id), member.name)
+            if db_membername == None:
+                sql.add_user(memberid , membername)
+            elif db_membername != membername:# if the user has changed name, it updates the name
+                sql.update_user_name(memberid, membername)
         
-            # update user_role table
+            # checks for different roles in user_role table
             
-            member_roleList = member.roles # [role.id, role.id] # gets a list of all the members roles from discord
-            member_roles = sql.get_user_role(str(member.id)) # [id, id] # gets a list of all the members roles from the sql server 
+            memberroles = member.roles 
+            db_memberroles = sql.get_user_role(memberid) 
 
-            for role in member_roleList: # loops though all the roles on the discord server
-                role = str(role.id)
-                found_role = False
+            # checks for new roles to be added
+            for memberrole in memberroles:
+                memberroleid = str(memberrole.id)
 
-                for db_role in member_roles: # loops though all the known roles on the sql server
-                    db_role = db_role[0]
+                found = False
+                for db_memberroleid in db_memberroles: 
 
-                    if role == db_role: # if it finds the role, it notes it
-                        found_role = True
+                    if memberroleid == db_memberroleid:
+                        found = True
 
-                if found_role == False:# updates the role if it hasnt found the role
-                    sql.add_user_role(str(member.id),role)
-        
+                if found == False:
+                    sql.add_user_role(memberid,memberroleid)
+
+            #checks for old roles to be deleted
+            for db_memberroleid in db_memberroles:
+
+                found = False
+                for memberrole in memberroles:
+                    memberroleid = str(memberrole.id)
+
+                    if memberroleid == db_memberroleid:
+                        found = True
+                
+                if found == False:
+                    sql.delete_user_role(memberid,db_memberroleid)
+
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -73,9 +92,53 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         '''
         : testing command
         '''
-        pass
+        sql = sql_class()
+        guild = self.client.get_guild(self.server_id)
 
-            
+        db_roles = sql.get_roles()
+
+        
+        # searching for new roles that have been added
+        for role in guild.roles:
+            roleid = str(role.id)
+            rolename = role.name
+
+            found = False
+            for db_role in db_roles:
+                db_roleid = db_role[0]
+                db_rolename = db_role[1]
+
+                if roleid == db_roleid:
+                    found = True
+                    if db_rolename != rolename:
+                        sql.update_role_name(db_roleid, rolename)
+                
+            if found == False:
+                sql.add_role(roleid, rolename)
+        
+
+        # searching for old roles that are deleted
+        for db_role in db_roles:
+            db_roleid = db_role[0]
+            db_rolename = db_role[1]
+
+            found = False
+            for role in guild.roles:
+                roleid = str(role.id)
+                rolename = role.name
+                
+                if roleid == db_roleid:
+                    found = True
+                
+            if found == False:
+                sql.remove_role(db_roleid)
+
+
+        #adds roles to member
+        member = ctx.message.author #temp till i transfer to member join
+        member_roleList = sql.get_user_role(str(member.id))
+
+        await self.client.add_roles(member, member_roleList)
 
 
 

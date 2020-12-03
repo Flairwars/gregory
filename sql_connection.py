@@ -115,7 +115,9 @@ class sql_class():
         self.cursor.execute(sql, user_id)
         data = self.cursor.fetchall()
         if data:
-            return data
+            data2 = []
+            for n in data:
+                data2.append(int(n[0]))
         else:
             return []
     
@@ -134,20 +136,48 @@ class sql_class():
             self.conn.rollback()
             print(str(exc))
 
-
-#######################################
-
-    def get_role_user(self, role_id):
+    def remove_user_role(self, user_id, role_id):
         '''
         docs go here but imn lazy
         '''
-        sql = "SELECT `user_id` FROM user_role WHERE `role_id` = %s"
+        sql = 'DELETE FROM roles WHERE `user_id` = %s AND `role_id` = %s'
+
+        try:
+            self.conn.ping(reconnect=True)
+            self.cursor.execute(sql, (user_id, role_id))
+            self.conn.commit()
+
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
+
+
+#######################################
+
+    def get_roles(self):
+        '''
+        docs go here but imn lazy
+        '''
+        sql = "SELECT * FROM roles "
 
         self.conn.ping(reconnect=True)
-        self.cursor.execute(sql, role_id)
+        self.cursor.execute(sql)
         data = self.cursor.fetchall()
         if data:
-            return data[0]
+            return data
         else:
             return None
 
+    def remove_role(self, role_id):
+        '''
+        docs go here but imn lazy
+        '''
+        sql = 'DELETE FROM roles WHERE `id` = %s'
+        try:
+            self.conn.ping(reconnect=True)
+            self.cursor.execute(sql, role_id)
+            self.conn.commit()
+
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
