@@ -1,3 +1,5 @@
+import discord
+from discord.errors import DiscordException
 from discord.ext import commands
 from discord.utils import get
 from sql.roles import sql_class
@@ -27,8 +29,12 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             roles.append(role)
         
         # adds roles
-        await member.add_roles(*roles, reason="Automatically added roles")
-        sql.remove_user(memberId)
+        try:
+            await member.add_roles(*roles, reason="Automatically added roles")
+        except DiscordException:
+            pass
+        
+        sql.remove_user_roles(memberId)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -40,7 +46,9 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         memberId = str(member.id)
         memberName = member.name
 
-        sql.add_user(memberId, memberName)
+        exists = sql.get_user(memberId)
+        if exists == None:
+            sql.add_user(memberId, memberName)
 
         memberRoles = member.roles
         for memberRole in memberRoles:
