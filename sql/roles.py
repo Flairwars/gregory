@@ -27,22 +27,20 @@ class sql_class():
         except  Exception as exc:
             self.conn.rollback()
             print(str(exc))
-        
-    def remove_user(self, user_id):
+
+    def get_user(self, user_id):
         '''
         docs go here but imn lazy
         '''
-        sql = 'DELETE FROM users WHERE `id` = %s'
-        try:
-            self.conn.ping(reconnect=True)
-            self.cursor.execute(sql, user_id)
-            self.conn.commit()
+        sql = "SELECT id FROM users "
 
-        except  Exception as exc:
-            self.conn.rollback()
-            print(str(exc))
-
-
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+        if data:
+            return data
+        else:
+            return None
 #######################################
         
     def add_role(self, role_id, name):
@@ -136,6 +134,20 @@ class sql_class():
             self.conn.rollback()
             print(str(exc))
 
+
+    def remove_user_roles(self, user_id):
+        '''
+        docs go here but imn lazy
+        '''
+        sql = 'DELETE FROM user_role WHERE `user_id` = %s'
+        try:
+            self.conn.ping(reconnect=True)
+            self.cursor.execute(sql, user_id)
+            self.conn.commit()
+
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
 #######################################
 
 
