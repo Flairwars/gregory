@@ -1,7 +1,6 @@
-import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
+from discord.utils import get
 from sql.roles import sql_class
-import asyncio
 
 class persistant_role(commands.Cog, name='Persistant Roles'):
     """
@@ -13,28 +12,23 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        pass
-        '''
-        for db_memberroleid in db_memberroles:
-
-        found = False
-        for memberrole in memberroles:
-            memberroleid = str(memberrole.id)
-
-            if memberroleid == db_memberroleid:
-                found = True
-        
-        if found == False:
-            sql.delete_user_role(memberid,db_memberroleid)
-        '''
         sql = sql_class()
 
         guild = self.client.get_guild(self.server_id)
         self._update_roles(guild)
 
         memberId = str(member.id)
-        memberName = member.name
+        memberRoles = sql.get_user_role(memberId)
 
+        #gets a list of role classes
+        roles = [] 
+        for memberRole in memberRoles:
+            role = get(guild.roles, id=int(memberRole))
+            roles.append(role)
+        
+        # adds roles
+        await member.add_roles(*roles, reason="Automatically added roles")
+        sql.remove_user(memberId)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -51,7 +45,9 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         memberRoles = member.roles
         for memberRole in memberRoles:
                 memberRoleId = str(memberRole.id)
-                sql.add_user_role(memberId,memberRoleId)
+                memberRoleName = memberRole.name
+                if memberRoleName != "@everyone":
+                    sql.add_user_role(memberId,memberRoleId)
 
 
     def _update_roles(self, guild):
@@ -66,13 +62,13 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             for db_role in db_roles:
                 db_roleId = db_role[0]
                 db_roleName = db_role[1]
-
                 if roleId == db_roleId:
+                    #print(db_roleId, roleName)
                     found = True
                     if db_roleName != roleName:
                         sql.update_role_name(db_roleId, roleName)
                 
-            if found == False:
+            if found == False and roleName !="@everyone":
                 sql.add_role(roleId, roleName)
         
 
@@ -91,17 +87,6 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
                 
             if found == False:
                 sql.remove_role(db_roleId)
-
-
-    @commands.command()
-    async def test(self, ctx):
-
-
-        #adds roles to member
-        member = ctx.message.author #temp till i transfer to member join
-        member_roleList = sql.get_user_role(str(member.id))
-
-        await self.client.add_roles(member, member_roleList)
 
 
 def setup(client):

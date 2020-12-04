@@ -9,17 +9,6 @@ class base(commands.Cog, name='Basic Commands'):
     def __init__(self, client):
         self.client = client
 
-
-    '''
-    @commands.Cog.listener()
-    async def on_member_join(member):
-        print(f'{member} has joined the server')
-
-    @commands.Cog.listener()
-    async def on_member_remove(member):
-        print(f'{member} has left the server')
-    '''
-
     @commands.command()
     async def ping(self, ctx):
         """

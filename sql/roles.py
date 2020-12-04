@@ -13,20 +13,6 @@ class sql_class():
         self.cursor = self.conn.cursor()
 
 #######################################
-
-    def get_user(self, user_id):
-        '''
-        docs go here but imn lazy
-        '''
-        sql = "SELECT `name` FROM users WHERE `id` = %s"
-
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql, user_id)
-        data = self.cursor.fetchall()
-        if data:
-            return data[0][0]
-        else:
-            return None
         
     def add_user(self, user_id, name):
         '''
@@ -42,15 +28,14 @@ class sql_class():
             self.conn.rollback()
             print(str(exc))
         
-    def update_user_name(self, user_id, name):
+    def remove_user(self, user_id):
         '''
         docs go here but imn lazy
         '''
-        sql = "UPDATE users SET `name` = %s WHERE `id` = %s"
-        
+        sql = 'DELETE FROM users WHERE `id` = %s'
         try:
             self.conn.ping(reconnect=True)
-            self.cursor.execute(sql, (name, user_id))
+            self.cursor.execute(sql, user_id)
             self.conn.commit()
 
         except  Exception as exc:
@@ -59,20 +44,6 @@ class sql_class():
 
 
 #######################################
-
-    def get_role(self, role_id):
-        '''
-        docs go here but imn lazy
-        '''
-        sql = "SELECT `name` FROM roles WHERE `id` = %s"
-
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql, role_id)
-        data = self.cursor.fetchall()
-        if data:
-            return data[0][0]
-        else:
-            return None
         
     def add_role(self, role_id, name):
         '''
@@ -87,7 +58,21 @@ class sql_class():
         except  Exception as exc:
             self.conn.rollback()
             print(str(exc))
-        
+
+    def get_roles(self):
+        '''
+        docs go here but imn lazy
+        '''
+        sql = "SELECT * FROM roles "
+
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+        if data:
+            return data
+        else:
+            return []
+
     def update_role_name(self, role_id, name):
         '''
         docs go here but imn lazy
@@ -97,6 +82,20 @@ class sql_class():
         try:
             self.conn.ping(reconnect=True)
             self.cursor.execute(sql, (name, role_id))
+            self.conn.commit()
+
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
+
+    def remove_role(self, role_id):
+        '''
+        docs go here but imn lazy
+        '''
+        sql = 'DELETE FROM roles WHERE `id` = %s'
+        try:
+            self.conn.ping(reconnect=True)
+            self.cursor.execute(sql, role_id)
             self.conn.commit()
 
         except  Exception as exc:
@@ -117,7 +116,8 @@ class sql_class():
         if data:
             data2 = []
             for n in data:
-                data2.append(int(n[0]))
+                data2.append(n[0])
+            return data2
         else:
             return []
     
@@ -136,48 +136,6 @@ class sql_class():
             self.conn.rollback()
             print(str(exc))
 
-    def remove_user_role(self, user_id, role_id):
-        '''
-        docs go here but imn lazy
-        '''
-        sql = 'DELETE FROM roles WHERE `user_id` = %s AND `role_id` = %s'
-
-        try:
-            self.conn.ping(reconnect=True)
-            self.cursor.execute(sql, (user_id, role_id))
-            self.conn.commit()
-
-        except  Exception as exc:
-            self.conn.rollback()
-            print(str(exc))
-
-
 #######################################
 
-    def get_roles(self):
-        '''
-        docs go here but imn lazy
-        '''
-        sql = "SELECT * FROM roles "
 
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql)
-        data = self.cursor.fetchall()
-        if data:
-            return data
-        else:
-            return None
-
-    def remove_role(self, role_id):
-        '''
-        docs go here but imn lazy
-        '''
-        sql = 'DELETE FROM roles WHERE `id` = %s'
-        try:
-            self.conn.ping(reconnect=True)
-            self.cursor.execute(sql, role_id)
-            self.conn.commit()
-
-        except  Exception as exc:
-            self.conn.rollback()
-            print(str(exc))

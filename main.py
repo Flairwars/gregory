@@ -21,14 +21,6 @@ for filename in os.listdir('./commands'):
 async def on_ready():
     print('bot done')
 
-'''
-# error handleing 
-@client.event
-async def on_command_error(ctx,error):
-    pass
-'''
-
-
 # Loading and unloading of cogs for testing
 @client.command()
 @commands.is_owner()
