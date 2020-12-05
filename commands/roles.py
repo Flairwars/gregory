@@ -9,22 +9,23 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
     """
     def __init__(self, client):
         self.client = client
-        self.server_id = 780836834635677708 # this is the server id of the current server that it is running on
+        self.server_id = 784750381694713908 # this is the server id of the current server that it is running on
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
         sql = sql_class()
 
-        guild = self.client.get_guild(self.server_id)
-        self._update_roles(guild)
+        self._update_guilds()
+        self._update_roles(member)
 
         memberId = str(member.id)
-        memberRoles = sql.get_user_role(memberId)
+        memberGuildId = str(member.guild.id)
+        memberRoles = sql.get_user_role(memberId, memberGuildId)
 
         #gets a list of role classes
         roles = [] 
         for memberRole in memberRoles:
-            role = get(guild.roles, id=int(memberRole))
+            role = get(member.guild.roles, id=int(memberRole))
             roles.append(role)
         
         # adds roles
@@ -33,35 +34,39 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         except DiscordException as e:
             print(e)
         
-        sql.remove_user_roles(memberId)
+        sql.remove_user_roles(memberId, memberGuildId)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         sql = sql_class()
 
-        guild = self.client.get_guild(self.server_id)
-        self._update_roles(guild)
+        self._update_guilds()
+        self._update_roles(member)
 
         memberId = str(member.id)
         memberName = member.name
+        memberGuildId = str(member.guild.id)
 
-        exists = sql.get_user(memberId)
+        exists = sql.get_user(memberId, memberGuildId)
         if exists == None:
-            sql.add_user(memberId, memberName)
+            sql.add_user(memberId, memberName, memberGuildId)
 
         memberRoles = member.roles
         for memberRole in memberRoles:
                 memberRoleId = str(memberRole.id)
                 memberRoleName = memberRole.name
                 if memberRoleName != "@everyone":
-                    sql.add_user_role(memberId,memberRoleId)
+                    sql.add_user_role(memberId, memberRoleId, memberGuildId)
 
 
-    def _update_roles(self, guild):
+    def _update_roles(self, member):
         sql = sql_class()
         db_roles = sql.get_roles()
 
-        for role in guild.roles:
+        guildRoles = member.guild.roles
+        guildId = str(member.guild.id)
+
+        for role in guildRoles:
             roleId = str(role.id)
             roleName = role.name
 
@@ -76,7 +81,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
                         sql.update_role_name(db_roleId, roleName)
                 
             if found == False and roleName !="@everyone":
-                sql.add_role(roleId, roleName)
+                sql.add_role(roleId, roleName, guildId)
         
 
         # searching for old roles that are deleted
@@ -85,7 +90,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             db_roleName = db_role[1]
 
             found = False
-            for role in guild.roles:
+            for role in guildRoles:
                 roleId = str(role.id)
                 roleName = role.name
                 
@@ -93,7 +98,49 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
                     found = True
                 
             if found == False:
-                sql.remove_role(db_roleId)
+                sql.remove_role(db_roleId, guildId)
+
+    def _update_guilds(self):
+        sql = sql_class()
+
+        guilds = self.client.guilds
+        db_guilds = sql.get_guilds()
+
+
+        for guild in guilds:
+            guildId = str(guild.id)
+            guildName = guild.name
+
+            found = False
+            for db_guild in db_guilds:
+                db_guildId = db_guild[0]
+                db_guildName = db_guild[1]
+                if guildId == db_guildId:
+                    #print(db_roleId, roleName)
+                    found = True
+                    if db_guildName != guildName:
+                        sql.update_guild_name(db_guildId, guildName)
+                
+            if found == False:
+                sql.add_guild(guildId, guildName)
+        
+
+        # searching for old roles that are deleted
+        for db_guild in db_guilds:
+            db_guildId = db_guild[0]
+            db_guildName = db_guild[1]
+
+            found = False
+            for guild in guilds:
+                guildId = str(guild.id)
+                guildName = guild.name
+                
+                if guildId == db_guildId:
+                    found = True
+                
+            if found == False:
+                sql.remove_role(db_guildId)
+
 
 
 def setup(client):
