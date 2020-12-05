@@ -30,8 +30,8 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         # adds roles
         try:
             await member.add_roles(*roles, reason="Automatically added roles")
-        except DiscordException:
-            pass
+        except DiscordException as e:
+            print(e)
         
         sql.remove_user_roles(memberId)
 
