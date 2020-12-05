@@ -32,10 +32,10 @@ class sql_class():
         '''
         docs go here but imn lazy
         '''
-        sql = "SELECT id FROM users "
+        sql = "SELECT id FROM users WHERE id = %s"
 
         self.conn.ping(reconnect=True)
-        self.cursor.execute(sql)
+        self.cursor.execute(sql, user_id)
         data = self.cursor.fetchall()
         if data:
             return data
