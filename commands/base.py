@@ -9,13 +9,6 @@ class base(commands.Cog, name='Basic Commands'):
     def __init__(self, client):
         self.client = client
 
-    @commands.command()
-    async def ping(self, ctx):
-        """
-        : works out latancy of bot
-        """
-        await ctx.send(f'Pong! {round(self.client.latency * 1000)}ms')
-
     @commands.command(aliases=['git'])
     async def github(ctx):
         """
