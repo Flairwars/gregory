@@ -1,6 +1,7 @@
 FROM python:3
-COPY ./requirements.txt /app/requirements.txt
 WORKDIR /app
+COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 COPY ./src /app/src
-CMD [ "python3", "main.py"]
+RUN chmod +x ./app/src/main.py
+CMD [ "python", "./app/src/main.py"]
