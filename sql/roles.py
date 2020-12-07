@@ -179,16 +179,18 @@ class sql_class():
             self.conn.rollback()
             print(str(exc))
 
-    def add_guild(self, guild_id, name):
+    def remove_guild(self, guild_id):
         '''
         docs go here but imn lazy
         '''
-        sql = 'INSERT INTO guilds (`id`, `name`) VALUES (%s,%s)'
+        sql = 'DELETE FROM guilds WHERE `id` = %s'
 
         try:
             self.conn.ping(reconnect=True)
-            self.cursor.execute(sql, (guild_id, name))
+            self.cursor.execute(sql, guild_id)
             self.conn.commit()
         except  Exception as exc:
             self.conn.rollback()
             print(str(exc))
+        
+    
