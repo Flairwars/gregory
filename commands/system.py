@@ -13,7 +13,7 @@ class system(commands.Cog, name='System commands'):
         """
         : works out latancy of bot
         """
-        await ctx.send(f'Pong! {round(self.client.latency * 1000)}ms')
+        await ctx.send(f'Pong! Latency is {round(self.client.latency * 1000)}ms. API Latency is {round(self.client.latency  * 1000)}ms')
 
     # Loading and unloading of cogs for testing
     @commands.command()
@@ -47,7 +47,7 @@ class system(commands.Cog, name='System commands'):
         print(f'reloading {cog}...')
         self.client.unload_extension(f'commands.{cog}')
         self.client.load_extension(f'commands.{cog}')
-        await ctx.send(f'successfully reloaded {cog}')
+        await ctx.send(f'successfully reloaded {cog} :)')
         print('success!')
 
 
