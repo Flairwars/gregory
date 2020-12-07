@@ -10,7 +10,6 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
     """
     def __init__(self, client):
         self.client = client
-        self.server_id = 784750381694713908 # this is the server id of the current server that it is running on
 
     @commands.command(aliases=['addroles'])
     @commands.has_role("Verdancy")
@@ -43,6 +42,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             print(e)
         
         sql.remove_user_roles(memberId, memberGuildId)
+
         await ctx.send(f"`updated {member.name}'s roles!`")
 
     @add_roles.error
