@@ -31,10 +31,10 @@ class search(commands.Cog, name='Search Commands'):
                         example = example[:example.rfind(" ")]
                         example += "[[...]](https://www.urbandictionary.com/define.php?term=" + query.lower() + ")"
 
-                embed = discord.Embed(title=f'Urban Dictionary\'s results for {query}', description= f'__**Definition**__\n{meaning}\n\n__**Example**__\n{example}')
+                embed = discord.Embed(title=f'Urban Dictionary\'s results for {query}', description= f'__**Definition**__\n{meaning}\n\n__**Example**__\n{example}', color=discord.Color(0x4f9406))
                 await ctx.send(embed=embed)
             else:
-                await ctx.send(f'I could not find anything with the query `{query}`')
+                await ctx.send(f'I could not find anything with the query `{query} :(`')
         else:
             await ctx.send('You did not give me a query :(')
 
