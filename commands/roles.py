@@ -14,6 +14,10 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
     @commands.command(aliases=['addroles'])
     @commands.has_role("Verdancy")
     async def add_roles(self, ctx, member:discord.Member):
+        """
+        : command which adds roles from when someone last joined the server
+          .addroles @user
+        """
         sql = sql_class()
 
         self._update_guilds()
@@ -35,6 +39,10 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             role = get(member.guild.roles, id=int(memberRole))
             roles.append(role)
         
+        #removed no role from yagpbd
+        noRole = get(member.guild.roles, id=int(539284104378843186))
+        await member.remove_roles(noRole)
+
         # adds roles
         try:
             await member.add_roles(*roles, reason="Automatically added roles")
