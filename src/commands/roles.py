@@ -43,6 +43,14 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         sql.remove_user_roles(memberId, memberGuildId)
         await ctx.send(f'updated {member.id}`s roles`')
 
+    @add_roles.error
+    async def add_roles_error(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            await ctx.send('`please specify a user`')
+        else:
+            print(error)
+
+
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         sql = sql_class()
