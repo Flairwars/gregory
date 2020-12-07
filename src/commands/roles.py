@@ -28,6 +28,8 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             await ctx.send(f'{member.name} has no roles in my datatable')
             return
         
+        await ctx.send(f"`adding {member.name}'s roles...`")
+        
         #gets a list of role classes
         roles = [] 
         for memberRole in memberRoles:
@@ -41,7 +43,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             print(e)
         
         sql.remove_user_roles(memberId, memberGuildId)
-        await ctx.send(f'updated {member.id}`s roles`')
+        await ctx.send(f"`updated {member.name}'s roles!`")
 
     @add_roles.error
     async def add_roles_error(self, ctx, error):
