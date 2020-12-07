@@ -1,6 +1,7 @@
 from discord.errors import DiscordException
 from discord.ext import commands
 from discord.utils import get
+import discord
 from sql.roles import sql_class
 
 class persistant_role(commands.Cog, name='Persistant Roles'):
@@ -9,10 +10,10 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
     """
     def __init__(self, client):
         self.client = client
-        self.server_id = 784750381694713908 # this is the server id of the current server that it is running on
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
+    @commands.command(aliases=['addroles'])
+    @commands.has_role("Verdancy")
+    async def add_roles(self, ctx, member:discord.Member):
         sql = sql_class()
 
         self._update_guilds()
@@ -22,6 +23,12 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         memberGuildId = str(member.guild.id)
         memberRoles = sql.get_user_role(memberId, memberGuildId)
 
+        if len(memberRoles) < 1:
+            await ctx.send(f'{member.name} has no roles in my datatable')
+            return
+        
+        await ctx.send(f"`adding {member.name}'s roles...`")
+        
         #gets a list of role classes
         roles = [] 
         for memberRole in memberRoles:
@@ -36,6 +43,16 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         
         sql.remove_user_roles(memberId, memberGuildId)
 
+        await ctx.send(f"`updated {member.name}'s roles!`")
+
+    @add_roles.error
+    async def add_roles_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await ctx.send('`MISSING ARGUMENTS: please specify a user`')
+        else:
+            print(error)
+
+
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         sql = sql_class()
@@ -46,6 +63,8 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         memberId = str(member.id)
         memberName = member.name
         memberGuildId = str(member.guild.id)
+
+        sql.remove_user_roles(memberId, memberGuildId)
 
         exists = sql.get_user(memberId, memberGuildId)
         if exists == None:
