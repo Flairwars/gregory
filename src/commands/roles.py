@@ -45,8 +45,8 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
 
     @add_roles.error
     async def add_roles_error(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send('`please specify a user`')
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await ctx.send('`MISSING ARGUMENTS: please specify a user`')
         else:
             print(error)
 
