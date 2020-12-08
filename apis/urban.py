@@ -14,6 +14,7 @@ async def getHTML(query):
             return html
 
 async def getDefinitions(query):
+    query = query.strip()
     #Makes the HTML more easily accessible with BeautifulSoup
     soup = BeautifulSoup(await getHTML(query), 'html.parser')
     if soup.find(id = 'content') != None:
@@ -25,7 +26,7 @@ async def getDefinitions(query):
         for d in defs:
             content = {}
             content['title'] = d.find('div', {'class' : 'def-header'}).get_text()
-            if content['title'].lower() != query.lower():
+            if content['title'].lower().strip() != query.lower().strip():
                 continue
 
             content['meaning'] = d.find('div', {'class' : 'meaning'}).get_text()
@@ -43,10 +44,11 @@ async def getDefinitions(query):
             content['votes']['down'] = int(votes.find('a', {'class': 'down'}).find('span', {'class': 'count'}).get_text())
             
             definitions.append(content)
+        print(definitions)
         return definitions
     else: 
         return -1
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(getDefinitions('ritz'))
+    loop.run_until_complete(getDefinitions('urban dictionary'))
