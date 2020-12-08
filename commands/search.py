@@ -30,8 +30,12 @@ class search(commands.Cog, name='Search Commands'):
                         example = example[:500]
                         example = example[:example.rfind(" ")]
                         example += "[[...]](https://www.urbandictionary.com/define.php?term=" + query.lower() + ")"
+                authorName = definition[0]['contributor']['author']
+                authorLink = definition[0]['contributor']['link']
+                author = f'[{authorName}]({authorLink})'
 
-                embed = discord.Embed(title=f'Urban Dictionary\'s results for {query}', description= f'__**Definition**__\n{meaning}\n\n__**Example**__\n{example}', color=discord.Color(0x4f9406))
+                embed = discord.Embed(title=f'Urban Dictionary\'s results for {query}', description= f'__**Definition**__\n{meaning}\n\n__**Example**__\n{example}\n\n__**Author**__\n{author}', color=discord.Color(0x4f9406))
+                embed.set_footer(text='👍 : ' + str(definition[0]['votes']['up']) + ' | 👎 : ' + str(definition[0]['votes']['down']))
                 await ctx.send(embed=embed)
             else:
                 await ctx.send(f'I could not find anything with the query `{query} :(`')

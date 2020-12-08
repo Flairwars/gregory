@@ -36,8 +36,13 @@ async def getDefinitions(query):
             content['contributor']['link'] = f'https://www.urbandictionary.com/author.php?author=' + content['contributor']['author']
             
             content['id'] = d.attrs['data-defid']
-            definitions.append(content)
 
+            content['votes'] = {}
+            votes = d.find('div', {'class': 'def-footer'}).find('div', {'class': 'row'}).find('div', {'class': 'columns'}).find('div', {'class': 'left thumbs'}).find('div', {'class': 'thumbs'})
+            content['votes']['up'] = int(votes.find('a', {'class': 'up'}).find('span', {'class': 'count'}).get_text()) 
+            content['votes']['down'] = int(votes.find('a', {'class': 'down'}).find('span', {'class': 'count'}).get_text())
+            
+            definitions.append(content)
         return definitions
     else: 
         return -1
