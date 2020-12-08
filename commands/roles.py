@@ -49,7 +49,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         for memberRole in memberRoles:
             role = get(member.guild.roles, id=int(memberRole))
             roles.append(role)
-        
+
         if memberGuildId == 485065547503894562:
             try:
                 #removed no role from yagpbd
@@ -182,6 +182,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
                 
             if found == False:
                 sql.remove_guild(db_guildId)
+
 
 def setup(client):
     client.add_cog(persistant_role(client))

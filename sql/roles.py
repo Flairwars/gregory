@@ -179,6 +179,20 @@ class sql_class():
             self.conn.rollback()
             print(str(exc))
 
+    def add_guild(self, guild_id, name):
+        '''
+        docs go here but imn lazy
+        '''
+        sql = 'INSERT INTO guilds (`id`, `name`) VALUES (%s,%s)'
+
+        try:
+            self.conn.ping(reconnect=True)
+            self.cursor.execute(sql, (guild_id, name))
+            self.conn.commit()
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
+
     def remove_guild(self, guild_id):
         '''
         docs go here but imn lazy
@@ -192,5 +206,4 @@ class sql_class():
         except  Exception as exc:
             self.conn.rollback()
             print(str(exc))
-        
-    
+            
