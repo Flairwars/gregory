@@ -19,5 +19,4 @@ for filename in os.listdir('./commands'):
 async def on_ready():
     print('bot done')
 
-
 client.run(config('TOKEN'))
