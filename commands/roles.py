@@ -1,6 +1,7 @@
 from discord.errors import DiscordException
 from discord.ext import commands
 from discord.utils import get
+import discord
 from sql.roles import sql_class
 
 class persistant_role(commands.Cog, name='Persistant Roles'):
@@ -9,10 +10,25 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
     """
     def __init__(self, client):
         self.client = client
-        self.server_id = 784750381694713908 # this is the server id of the current server that it is running on
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
+    @commands.command(aliases=['removeroles','clearroles','purgeroles'])
+    async def remove_roles(self, ctx):
+        '''
+        : remove roles from datatable
+        '''
+        sql = sql_class()
+        message = await ctx.send(f"`purging {ctx.author.name}'s roles from datatables...`")
+
+        sql.remove_user_roles(str(ctx.author.id), str(ctx.guild.id))
+
+        await message.edit(content=f"`purged {ctx.author.name}'s roles from datatables!`")
+
+    @commands.command(aliases=['addroles'])
+    @commands.has_role("Verdancy")
+    async def add_roles(self, ctx, member:discord.Member):
+        """
+        : command which adds roles from when someone last joined the server
+        """
         sql = sql_class()
 
         self._update_guilds()
@@ -22,11 +38,25 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         memberGuildId = str(member.guild.id)
         memberRoles = sql.get_user_role(memberId, memberGuildId)
 
+        if len(memberRoles) < 1:
+            await ctx.send(f'{member.name} has no roles in my datatable')
+            return
+        
+        message = await ctx.send(f"`adding {member.name}'s roles...`")
+        
         #gets a list of role classes
         roles = [] 
         for memberRole in memberRoles:
             role = get(member.guild.roles, id=int(memberRole))
             roles.append(role)
+
+        if memberGuildId == 485065547503894562:
+            try:
+                #removed no role from yagpbd
+                noRole = get(member.guild.roles, id=int(539284104378843186))
+                await member.remove_roles(noRole)
+            except Exception as e:
+                pass
         
         # adds roles
         try:
@@ -35,6 +65,16 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             print(e)
         
         sql.remove_user_roles(memberId, memberGuildId)
+        await message.edit(content=f"`updated {member.name}'s roles!`")
+
+
+    @add_roles.error
+    async def add_roles_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await ctx.send('`MISSING ARGUMENTS: please specify a user`')
+        else:
+            print(error)
+
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -46,6 +86,8 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         memberId = str(member.id)
         memberName = member.name
         memberGuildId = str(member.guild.id)
+
+        sql.remove_user_roles(memberId, memberGuildId)
 
         exists = sql.get_user(memberId, memberGuildId)
         if exists == None:
@@ -139,8 +181,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
                     found = True
                 
             if found == False:
-                sql.remove_role(db_guildId)
-
+                sql.remove_guild(db_guildId)
 
 
 def setup(client):
