@@ -5,6 +5,7 @@ from random import randint
 
 allowedChannels = [588354715625193473, 579538738988711958]
 
+
 class jokes(commands.Cog, name='memery bullshit'):
     """
     Gregory is a dank memer :sunglasses:
@@ -18,7 +19,7 @@ class jokes(commands.Cog, name='memery bullshit'):
         if message.author == self.client.user:
             return
         
-        if "fuck" in message.content.lower() and message.channel in allowedChannels:
+        if "fuck" in message.content.lower() and message.channel.id in allowedChannels:
             fBombs = message.content.lower().count("fuck")
             if fBombs == 1:
                 plural = "f-bomb"
