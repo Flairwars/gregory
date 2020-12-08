@@ -7,7 +7,7 @@ from decouple import config
 intents = discord.Intents.default()
 intents.presences - True
 intents.members = True
-client = commands.Bot(command_prefix = '!', intents=intents)
+client = commands.Bot(command_prefix = '.', intents=intents)
 
 # loads all cogs 
 for filename in os.listdir('./commands'):
