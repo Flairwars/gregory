@@ -39,7 +39,7 @@ class search(commands.Cog, name='Search Commands'):
 
         return embed
 
-    @commands.command()
+    @commands.command(aliases=['ub'])
     async def urban(self, ctx, *, query = ' '):
         """
         : Looks up a term on Urban Dictionary
