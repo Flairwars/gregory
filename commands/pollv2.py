@@ -3,8 +3,7 @@ import discord
 from discord.ext import commands
 from converter.datetimeCalc import datetimeCal
 from sql.pollv2 import sql_class
-
-
+import re
 
 class poll(commands.Cog):
     '''
@@ -51,6 +50,10 @@ class poll(commands.Cog):
         """
         .poll2 7d2h {who do you want to vote lol?} [arg1] [arg2]
         """
+        reg = re.compile('({.+})\ *(\[[^\n\r\[\]]+\] *)+')
+        if not reg.match(args):
+            raise discord.errors.DiscordException
+        
         # fomatting of arguments in message
         args = args.split('[')
         name = args.pop(0)[1:]
@@ -61,7 +64,21 @@ class poll(commands.Cog):
         if len(args) > 20:
             await ctx.send(f"bad {ctx.author.name}! thats too much polling >:(")
             return
+        elif len(args) == 0:
+            await ctx.send(f"bad {ctx.author.name}! thats too little polling >:(")
+            return
+        elif name == '' or '' in args:
+            await ctx.send(f"bad {ctx.author.name}! thats too simplistic polling >:(")
+            return
         
+
+
+
+        print(name, type(name))
+        print(args, type(args))
+        print(time, type(time))
+        print(datetime.datetime.now())
+
         pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
 
         # format
@@ -73,13 +90,11 @@ class poll(commands.Cog):
 
         # send poll
         message = await ctx.send(embed=embed)
-
         #add reactions
         for count in range(len(args)):
             await message.add_reaction(pollsigns[count])
 
-        sql = sql_class()
-        
+        sql = sql_class()   
         sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, pollsigns, args)
 
     @commands.command()
@@ -88,6 +103,14 @@ class poll(commands.Cog):
         print(message)
         pass
 
+
+    @poll2.error
+    async def reload_error(self, ctx, error):
+        # error if cog doesnt exist
+        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
+            await ctx.send('`ERROR Missing Required Argument: make sure it is .poll2 <time MMWWDDhhmmss> {title} [args]`')
+        else:
+            print(error)
 
 def setup(client):
     client.add_cog(poll(client))
