@@ -100,23 +100,26 @@ class search(commands.Cog, name='Search Commands'):
             await ctx.send('You did not give me a query :(')
 
     @commands.command()
-    async def weather(self, ctx, *, query):
+    async def weather(self, ctx, *, query = ' '):
         data = await weather.get_current(query)
-
-        if data != None:
-            print(data)
-            response = '```\n'
-            sign = constants.WEATHER_SYMBOL_WEGO[constants.WWO_CODE[data['weatherCode']]]
-
-            response += sign[0] + f'{data["weatherDesc"][0]["value"]}\n'
-            response += sign[1] + f'{data["FeelsLikeC"]}..{data["temp_C"]} °C | {data["FeelsLikeF"]}..{data["temp_F"]} °F\n'
-            response += sign[2] + f'{data["windspeedKmph"]} km/h | {data["windspeedMiles"]} mph\n'
-            response += sign[3] + f'{data["humidity"]}%\n'
-            response += sign[4] + f'{data["precipMM"]}\n'
-            response += '```'
-            await ctx.send(response)
+        
+        if query = ' ':
+            await ctx.send('You did not give me a location :(')
         else:
-            await ctx.send(f'I couldn\'t find the place `{query}` :(')
+            if data != None:
+                print(data)
+                response = '```\n'
+                sign = constants.WEATHER_SYMBOL_WEGO[constants.WWO_CODE[data['weatherCode']]]
+
+                response += sign[0] + f'{data["weatherDesc"][0]["value"]}\n'
+                response += sign[1] + f'{data["FeelsLikeC"]}..{data["temp_C"]} °C | {data["FeelsLikeF"]}..{data["temp_F"]} °F\n'
+                response += sign[2] + f'{data["windspeedKmph"]} km/h | {data["windspeedMiles"]} mph\n'
+                response += sign[3] + f'{data["humidity"]}%\n'
+                response += sign[4] + f'{data["precipMM"]}\n'
+                response += '```'
+                await ctx.send(response)
+            else:
+                await ctx.send(f'I couldn\'t find the place `{query}` :(')
 
 def setup(client):
     client.add_cog(search(client))
