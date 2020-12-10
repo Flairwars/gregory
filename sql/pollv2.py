@@ -28,10 +28,77 @@ class sql_class():
             data = self.cursor.fetchall()
 
             for count in range(len(args)):
-                self.cursor.execute(sql3, (data[0][0], emote_ids[count], args[count]))
+                self.cursor.execute(sql3, (data[0][0], str(ord(emote_ids[count])), args[count]))
             self.conn.commit()
 
         except  Exception as exc:
             self.conn.rollback()
             print(str(exc))
 
+    def vote_add(self, message_id, channel_id, guild_id, emote_id, user_id):
+        """
+        docs go here but imn lazy
+        """
+        sql = "SELECT id FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
+        sql2 = "SELECT id FROM users WHERE id = %s AND guild_id = %s"
+        sql3 = "INSERT INTO users (`id`, `guild_id`) VALUES (%s,%s)"
+        sql4 = "SELECT id FROM poll_options WHERE poll_id = %s AND emote_id = %s"
+        sql5 = "INSERT INTO votes (`poll_id`, `user_id`, `option_id`) VALUES (%s,%s,%s)"
+
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql, (message_id, channel_id, guild_id))
+        poll_id = self.cursor.fetchall()
+        if poll_id:
+            if not self.cursor.execute(sql2, (user_id, guild_id)):
+                try:
+                    self.cursor.execute(sql3, (user_id, guild_id))
+                    self.conn.commit()
+                except  Exception as exc:
+                    self.conn.rollback()
+                    print(str(exc))
+                    return None
+            
+            self.cursor.execute(sql4, (poll_id[0][0], emote_id))
+            option_id = self.cursor.fetchall()
+            if option_id:
+                try:
+                    self.cursor.execute(sql5, (poll_id[0][0], user_id, option_id[0][0]))
+                    self.conn.commit()
+                except  Exception as exc:
+                        self.conn.rollback()
+                        print(str(exc))
+                        return None
+
+    def vote_remove(self, message_id, channel_id, guild_id, emote_id, user_id):
+        """
+        docs go here but imn lazy
+        """
+        sql = "SELECT id FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
+        sql2 = "SELECT id FROM users WHERE id = %s AND guild_id = %s"
+        sql3 = "INSERT INTO users (`id`, `guild_id`) VALUES (%s,%s)"
+        sql4 = "SELECT id FROM poll_options WHERE poll_id = %s AND emote_id = %s"
+        sql5 = "DELETE FROM votes WHERE poll_id = %s AND user_id = %s AND option_id = %s"
+
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql, (message_id, channel_id, guild_id))
+        poll_id = self.cursor.fetchall()
+        if poll_id:
+            if not self.cursor.execute(sql2, (user_id, guild_id)):
+                try:
+                    self.cursor.execute(sql3, (user_id, guild_id))
+                    self.conn.commit()
+                except  Exception as exc:
+                    self.conn.rollback()
+                    print(str(exc))
+                    return None
+            
+            self.cursor.execute(sql4, (poll_id[0][0], emote_id))
+            option_id = self.cursor.fetchall()
+            if option_id:
+                try:
+                    self.cursor.execute(sql5, (poll_id[0][0], user_id, option_id[0][0]))
+                    self.conn.commit()
+                except  Exception as exc:
+                        self.conn.rollback()
+                        print(str(exc))
+                        return None

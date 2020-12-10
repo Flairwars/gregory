@@ -11,49 +11,44 @@ class poll(commands.Cog):
     '''
     def __init__(self, client):
         self.client = client
+        self.pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
     
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        """
-        <RawReactionActionEvent 
-        message_id=784823361476886540 
-        user_id=771011111242956820 
-        channel_id=784752699152269323 
-        guild_id=784750381694713908 
-        emoji=<PartialEmoji 
-            animated=False 
-            name='🇦' 
-            id=None
-            > 
-        event_type='REACTION_ADD' 
-        member=<Member 
-            id=771011111242956820 
-            name='Gregory' 
-            discriminator='8659' 
-            bot=True 
-            nick=None 
-            guild=<
-                Guild id=784750381694713908
-                name='gregory test server' 
-                shard_id=None 
-                chunked=True 
-                member_count=7
-                >
-            >
-        >
-        """
-        
+        message_id = str(payload.message_id)
+        channel_id = str(payload.channel_id)
+        guild_id = str(payload.guild_id)   
+        user_id = str(payload.user_id)
 
+        # if it has an id, its not one of the abcdef emotes
+        if payload.emoji.name in self.pollsigns:
+            emote_id = str(ord(payload.emoji.name))
+            sql = sql_class()
+            sql.vote_add(message_id, channel_id, guild_id, emote_id, user_id)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        message_id = str(payload.message_id)
+        channel_id = str(payload.channel_id)
+        guild_id = str(payload.guild_id)
+        user_id = str(payload.user_id)
+
+        # if it has an id, its not one of the abcdef emotes
+        if payload.emoji.name in self.pollsigns:
+            emote_id = str(ord(payload.emoji.name))
+            sql = sql_class()
+            sql.vote_remove(message_id, channel_id, guild_id, emote_id, user_id)
 
     @commands.command(aliases=['poll2electricboogaloo','poll'])
     async def poll2(self, ctx, time: datetimeCal, *, args):
         """
         .poll2 7d2h {who do you want to vote lol?} [arg1] [arg2]
         """
+        # checks message against regex to see if it matches
         reg = re.compile('({.+})\ *(\[[^\n\r\[\]]+\] *)+')
         if not reg.match(args):
             raise discord.errors.DiscordException
-        
+
         # fomatting of arguments in message
         args = args.split('[')
         name = args.pop(0)[1:]
@@ -70,38 +65,22 @@ class poll(commands.Cog):
         elif name == '' or '' in args:
             await ctx.send(f"bad {ctx.author.name}! thats too simplistic polling >:(")
             return
-        
 
 
-
-        print(name, type(name))
-        print(args, type(args))
-        print(time, type(time))
-        print(datetime.datetime.now())
-
-        pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
-
-        # format
+        # creating embed for poll
         description = ''
         for count in range(len(args)):
-            description += pollsigns[count] + ' ' + args[count] + '\n\n'
+            description += self.pollsigns[count] + ' ' + args[count] + '\n\n'
 
         embed = discord.Embed(title=name,color=discord.Color.green(),description=description)
-
-        # send poll
         message = await ctx.send(embed=embed)
+
         #add reactions
         for count in range(len(args)):
-            await message.add_reaction(pollsigns[count])
+            await message.add_reaction(self.pollsigns[count])
 
         sql = sql_class()   
-        sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, pollsigns, args)
-
-    @commands.command()
-    async def test(self, ctx, time: datetimeCal, name, *args):
-        message = await ctx.send(name)
-        print(message)
-        pass
+        sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, self.pollsigns, args)
 
 
     @poll2.error
