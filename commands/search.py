@@ -48,7 +48,8 @@ class Search(commands.Cog, name='Search Commands'):
     def __init__(self, client):
         self.client = client
 
-    @commands.command()
+        
+    @commands.command(aliases=['ub'])
     async def urban(self, ctx, *, query=' '):
         """
         : Looks up a term on Urban Dictionary
