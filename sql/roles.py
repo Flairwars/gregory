@@ -192,3 +192,18 @@ class sql_class():
         except  Exception as exc:
             self.conn.rollback()
             print(str(exc))
+
+    def remove_guild(self, guild_id):
+        '''
+        docs go here but imn lazy
+        '''
+        sql = 'DELETE FROM guilds WHERE `id` = %s'
+
+        try:
+            self.conn.ping(reconnect=True)
+            self.cursor.execute(sql, guild_id)
+            self.conn.commit()
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
+            

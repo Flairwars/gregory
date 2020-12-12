@@ -4,7 +4,7 @@ on:
   push:
     # Publish `master` as Docker `latest` image.
     branches:
-      - master
+      - docker
 
     # Publish `v1.2.3` tags as releases.
     tags:
@@ -15,13 +15,13 @@ on:
 
 env:
   # TODO: Change variable to your image's name.
-  IMAGE_NAME: gregory
+  IMAGE_NAME: Gregory
 
 jobs:
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
   test:
-    runs-on: ubuntu-latest
+    runs-on: ARM64
 
     steps:
       - uses: actions/checkout@v2
@@ -41,7 +41,7 @@ jobs:
     # Ensure test job passes before pushing image.
     needs: test
 
-    runs-on: ubuntu-latest
+    runs-on: ARM64
     if: github.event_name == 'push'
 
     steps:
@@ -51,7 +51,7 @@ jobs:
         run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
       - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
       - name: Push image
         run: |
