@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from apis import urban, weather, constants
+from apis import urban, weather, wyr, constants
 
 
 async def generate_urban_embed(definition, n, query):
@@ -132,6 +132,17 @@ class Search(commands.Cog, name='Search Commands'):
                 await ctx.send(response)
             else:
                 await ctx.send(f'I couldn\'t find the place `{query}` :(')
+
+    @commands.command(aliases=['wouldyourather'])
+    async def wyr(self, ctx, *, query=' '):
+        options = await wyr.get_wyr()
+
+        response = f'**Would you rather** (http://either.io/)\n:regional_indicator_a: {options["blue"]}'
+        response += f'\n**OR**\n:regional_indicator_b: {options["red"]}'
+
+        msg = await ctx.send(response)
+        await msg.add_reaction('🇦')
+        await msg.add_reaction('🇧')
 
 
 def setup(client):
