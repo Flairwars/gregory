@@ -29,3 +29,6 @@ furture boloptz
 id in poll options is unessesary
 composite key using poll id and emote "id" will handle situation
 votes imports table from emote id
+
+you bean
+you need to toggle the votes on add role
