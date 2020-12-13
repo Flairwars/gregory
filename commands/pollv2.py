@@ -4,7 +4,7 @@ from discord.utils import get
 from converter.datetimeCalc import datetimeCal
 from sql.pollv2 import sql_class
 import re
-
+# await discord.utils.sleep_until(when, result=None)
 class poll(commands.Cog):
     '''
     super fancy shmancy poll command
