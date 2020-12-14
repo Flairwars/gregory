@@ -1,5 +1,6 @@
 import asyncio
 import aiohttp
+import time
 
 from bs4 import BeautifulSoup
 
@@ -12,12 +13,17 @@ async def getHTML():
             return html
 
 
+
 async def get_wyr():
-    soup = BeautifulSoup(await getHTML(), 'html.parser')
+
+    html = await getHTML()
+    start = time.time()
+    html = html[:html.find('<div id=\"sub-banner-wrapper\">')]
+    soup = BeautifulSoup(html, 'html.parser')
 
     options = soup.find(id='question').find_all('span', {'class': 'option-text'})
     content = {'blue': options[0].get_text(), 'red': options[1].get_text()}
-
+    print(time.time() - start)
     return content
 
 

@@ -135,6 +135,7 @@ class Search(commands.Cog, name='Search Commands'):
 
     @commands.command(aliases=['wouldyourather'])
     async def wyr(self, ctx, *, query=' '):
+
         options = await wyr.get_wyr()
 
         response = f'**Would you rather** (http://either.io/)\n:regional_indicator_a: {options["blue"]}'
