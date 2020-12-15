@@ -1,10 +1,11 @@
+import re
 import discord
 from discord.ext import commands
-from discord.utils import get
 from converter.datetimeCalc import datetimeCal
 from sql.pollv2 import sql_class
-import re
-# await discord.utils.sleep_until(when, result=None)
+from asyncio import TimeoutError
+from apscheduler.scheduler import Scheduler
+
 class poll(commands.Cog):
     '''
     super fancy shmancy poll command
@@ -12,6 +13,8 @@ class poll(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
+        self.sched = Scheduler()
+        self.sched.start()
     
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -89,7 +92,7 @@ class poll(commands.Cog):
     async def reload_error(self, ctx, error):
         # error if cog doesnt exist
         if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
-            await ctx.send('`ERROR Missing Required Argument: make sure it is .poll2 <time MMWWDDhhmmss> {title} [args]`')
+            await ctx.send('`ERROR Missing Required Argument: make sure it is .poll2 <time ddhhmmss> {title} [args]`')
         else:
             print(error)
     
@@ -99,17 +102,40 @@ class poll(commands.Cog):
         allows the user to check who they voted for
         '''
         sql = sql_class()
-        data = sql.check_polls(str(ctx.author.id))
+        polls = sql.check_polls(str(ctx.author.id))
         # removes duplicate polls from data
-        data = list(dict.fromkeys(data))
+        polls = list(dict.fromkeys(polls))
         
-        if len(data) == 0:
+        if len(polls) == 0:
             await ctx.send('You havent voted on any active polls')
-        elif len(data) == 1:
-            votes = sql.check_votes(str(ctx.author.id), data[0][0])
+        elif len(polls) == 1:
+            votes = sql.check_votes(str(ctx.author.id), polls[0][0])
             await ctx.author.send(embed=self._sendvoted(votes))
         else:
-            pass
+            description = 'which poll do you want to see? \n\n' 
+            for count in range(len(polls)):
+                description += self.pollsigns[count] + ' ' + sql.get_poll(polls[count][0]) + '\n'
+            
+            embed = discord.Embed(title='Select a poll',color=discord.Color.green(),description=description)
+            msg = await ctx.author.send(embed=embed)
+
+            for count in range(len(polls)):
+                await msg.add_reaction(self.pollsigns[count])
+            
+            def check(reaction, user):
+                return user == ctx.message.author and str(reaction.emoji) in self.pollsigns
+            
+            try:
+                reaction, user = await self.client.wait_for('reaction_add', timeout=100, check=check)
+                if reaction.emoji in self.pollsigns:
+                    await msg.delete()
+                    votes = sql.check_votes(str(ctx.author.id), polls[self.pollsigns.index(reaction.emoji)][0])
+                    await ctx.author.send(embed=self._sendvoted(votes))
+                    return
+
+            except TimeoutError:
+                await ctx.send("Timed out")
+
 
         # await ctx.author.send('👋')
 

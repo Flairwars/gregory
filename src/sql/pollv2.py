@@ -94,7 +94,6 @@ class sql_class():
         data = self.cursor.fetchall()
         return data
 
-
     def check_votes(self, user_id, poll_id):
         sql = """
         SELECT poll_options.`arg`, polls.`name`
@@ -110,3 +109,11 @@ class sql_class():
         self.cursor.execute(sql, (user_id, poll_id))
         data = self.cursor.fetchall()
         return data
+
+    def get_poll(self, poll_id):
+        sql = "SELECT name FROM polls WHERE id = %s"
+
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql, poll_id)
+        data = self.cursor.fetchall()
+        return data[0][0]

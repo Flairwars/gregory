@@ -22,13 +22,3 @@ except  Exception as exc:
 
 check if done
 > select time ordered and pick earliest
-
-
-furture boloptz
-
-id in poll options is unessesary
-composite key using poll id and emote "id" will handle situation
-votes imports table from emote id
-
-you bean
-you need to toggle the votes on add role
