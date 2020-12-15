@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from apis import urban, weather, wyr, constants
+from apis import urban, weather, wyr, constants, xkcd
 
 
 async def generate_urban_embed(definition, n, query):
@@ -145,6 +145,15 @@ class Search(commands.Cog, name='Search Commands'):
         await msg.add_reaction('🇦')
         await msg.add_reaction('🇧')
 
+    @commands.command()
+    async def xkcd(self, ctx, identifier=' '):
+        comic = await xkcd.get_xkcd(identifier)
+        embed = discord.Embed(title=f'#{comic["num"]} - {comic["safe_title"]}',
+                              description=f'[{comic["alt"]}](https://xkcd.com/{comic["num"]}/)')
+        embed.set_image(url=comic['img'])
+        embed.color = discord.Color(0x4f9406)
+
+        await ctx.send(embed=embed)
 
 def setup(client):
     client.add_cog(Search(client))
