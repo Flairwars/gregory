@@ -4,8 +4,7 @@ import datetime
 class datetimeCal(commands.Converter):
     async def convert(self, ctx, argument):
 
-        argument = argument.lower()# our weird as fauck string
-        timeLetters = ['d','h','m','s']
+        timeLetters = ['W','D','h','m','s']
 
         timeDict = {}
         check = False
@@ -22,7 +21,8 @@ class datetimeCal(commands.Converter):
         if check == False:
             raise discord.errors.DiscordException
 
+        timeDict['D']+= timeDict['W']*7
         now = datetime.datetime.now()
-        due = now + datetime.timedelta(days=timeDict['d'], hours=timeDict['h'], minutes=timeDict['m'], seconds=timeDict['s'])
+        due = now + datetime.timedelta(days=timeDict['D'], hours=timeDict['h'], minutes=timeDict['m'], seconds=timeDict['s'])
         
         return due

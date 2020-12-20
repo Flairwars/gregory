@@ -154,3 +154,12 @@ class sql_class():
         except  Exception as exc:
             self.conn.rollback()
             print(str(exc))
+    
+    def location_get_poll(self, message_id, channel_id, guild_id):
+        sql = "SELECT id,time FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
+
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql, (message_id, channel_id, guild_id))
+        poll_id = self.cursor.fetchall()
+        return poll_id
+      
