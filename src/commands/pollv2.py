@@ -83,7 +83,7 @@ class poll(commands.Cog):
         user_id = str(payload.user_id)
         
         # breaks if its the bot
-        if user_id == '785578758450708492':
+        if user_id == self.client.id:
             return
         
         if payload.emoji.name not in self.pollsigns:
