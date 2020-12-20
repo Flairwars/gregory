@@ -11,6 +11,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
     def __init__(self, client):
         self.client = client
 
+
     @commands.command(aliases=['removeroles','clearroles','purgeroles'])
     async def remove_roles(self, ctx):
         '''
@@ -42,6 +43,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             await ctx.send(f'{member.name} has no roles in my datatable')
             return
         
+
         message = await ctx.send(f"`adding {member.name}'s roles...`")
         
         #gets a list of role classes
