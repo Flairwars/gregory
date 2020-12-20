@@ -1,9 +1,9 @@
+
 import discord
 from discord.ext import commands
 import datetime
 class datetimeCal(commands.Converter):
     async def convert(self, ctx, argument):
-
         timeLetters = ['W','D','h','m','s']
 
         timeDict = {}
@@ -17,7 +17,7 @@ class datetimeCal(commands.Converter):
                 argument = splitarguments[1]
             else:
                 timeDict[timeLetter] = 0
-        
+
         if check == False:
             raise discord.errors.DiscordException
 
