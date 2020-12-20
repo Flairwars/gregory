@@ -1,6 +1,5 @@
 import pymysql
 from decouple import config
-import datetime
 
 class sql_class():
     def __init__(self): 
@@ -30,7 +29,7 @@ class sql_class():
             for count in range(len(args)):
                 self.cursor.execute(sql3, (data[0][0], str(ord(emote_ids[count])), args[count]))
             self.conn.commit()
-
+            return str(data[0][0])
         except  Exception as exc:
             self.conn.rollback()
             print(str(exc))
@@ -110,10 +109,48 @@ class sql_class():
         data = self.cursor.fetchall()
         return data
 
-    def get_poll(self, poll_id):
+    def get_poll_name(self, poll_id):
         sql = "SELECT name FROM polls WHERE id = %s"
 
         self.conn.ping(reconnect=True)
         self.cursor.execute(sql, poll_id)
         data = self.cursor.fetchall()
         return data[0][0]
+
+    def get_polls(self):
+        sql = "SELECT id, time FROM polls"
+
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+        return data
+    
+    def get_poll_info(self, poll_id):
+        sql = "SELECT channel_id,name FROM polls WHERE id = %s"
+        sql2 = """SELECT votes.user_id,poll_options.arg 
+        FROM votes,poll_options 
+        WHERE votes.poll_id = %s 
+        AND poll_options.poll_id = votes.poll_id 
+        AND votes.emote_id = poll_options.emote_id 
+        """
+
+        self.conn.ping(reconnect=True)
+
+        self.cursor.execute(sql, poll_id)
+        poll_info = self.cursor.fetchall()
+
+        self.cursor.execute(sql2, poll_id)
+        votes = self.cursor.fetchall()
+
+        return poll_info[0], votes
+
+    def remove_poll(self, poll_id):
+        sql = "DELETE FROM polls WHERE id = %s"
+        self.conn.ping(reconnect=True)
+
+        try:
+            self.cursor.execute(sql, poll_id)
+            self.conn.commit()
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))

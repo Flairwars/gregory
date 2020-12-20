@@ -1,10 +1,11 @@
 import re
 import discord
+import asyncio
+import datetime
 from discord.ext import commands
 from converter.datetimeCalc import datetimeCal
 from sql.pollv2 import sql_class
-from asyncio import TimeoutError
-from apscheduler.scheduler import Scheduler
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 class poll(commands.Cog):
     '''
@@ -13,9 +14,51 @@ class poll(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
-        self.sched = Scheduler()
+        self.sched = AsyncIOScheduler()
         self.sched.start()
-    
+
+        client.loop.create_task(self.async_init())
+ 
+    async def async_init(self):
+        await self.client.wait_until_ready()
+
+        sql = sql_class()
+        polls = sql.get_polls()
+        now = datetime.datetime.now()
+        for poll in polls:
+            poll_id = str(poll[0])
+            poll_datetime = poll[1] 
+            if poll_datetime > now:
+                self.sched.add_job(self._poll2_end, 'date', run_date=poll_datetime, args=[poll_id],id=poll_id)
+            else:
+                await self._poll2_end(poll_id)
+        
+    async def _poll2_end(self, poll_id):
+        sql = sql_class()
+        poll_info, votes = sql.get_poll_info(str(poll_id))
+        #print(poll_info,votes)
+        description = ''
+
+        if len(votes) == 0:
+            description = 'no one voted :/'
+        else:
+            dict = {}
+            for elem in votes:
+                if elem[1] in dict.keys():
+                    dict[elem[1]] += 1
+                else:
+                    dict[elem[1]] = 1
+            
+            print(dict)
+            for key,value in dict.items():
+                description+=f'{value} votes for {key} \n\n'
+        
+        sql.remove_poll(poll_id)
+
+        embed = discord.Embed(title=poll_info[1],color=discord.Color.green(),description=description)
+        channel = self.client.get_channel(int(poll_info[0]))
+        await channel.send(embed=embed)
+
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         """
@@ -42,8 +85,7 @@ class poll(commands.Cog):
             if toggle == False or toggle == True:
                 channel = self.client.get_channel(payload.channel_id)
                 message = await channel.fetch_message(payload.message_id)
-                await message.remove_reaction(payload.emoji, payload.member)
-
+                await message.remove_reaction(payload.emoji, payload.member)        
 
     @commands.command(aliases=['poll2electricboogaloo','poll'])
     async def poll2(self, ctx, time: datetimeCal, *, args):
@@ -86,16 +128,20 @@ class poll(commands.Cog):
             await message.add_reaction(self.pollsigns[count])
 
         sql = sql_class()   
-        sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, self.pollsigns, args)
+        poll_id = sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, self.pollsigns, args)
+
+        self.sched.add_job(self._poll2_end, 'date', run_date=time, args=[poll_id],id=poll_id)
+        
+
 
     @poll2.error
     async def reload_error(self, ctx, error):
-        # error if cog doesnt exist
+        print(error)
         if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
             await ctx.send('`ERROR Missing Required Argument: make sure it is .poll2 <time ddhhmmss> {title} [args]`')
         else:
             print(error)
-    
+
     @commands.command(aliases=['checkvotes'])
     async def check_votes(self, ctx):
         '''
@@ -114,7 +160,7 @@ class poll(commands.Cog):
         else:
             description = 'which poll do you want to see? \n\n' 
             for count in range(len(polls)):
-                description += self.pollsigns[count] + ' ' + sql.get_poll(polls[count][0]) + '\n'
+                description += self.pollsigns[count] + ' ' + sql.get_poll_name(polls[count][0]) + '\n'
             
             embed = discord.Embed(title='Select a poll',color=discord.Color.green(),description=description)
             msg = await ctx.author.send(embed=embed)
@@ -133,7 +179,7 @@ class poll(commands.Cog):
                     await ctx.author.send(embed=self._sendvoted(votes))
                     return
 
-            except TimeoutError:
+            except asyncio.TimeoutError:
                 await ctx.send("Timed out")
 
 
