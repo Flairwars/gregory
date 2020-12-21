@@ -2,7 +2,7 @@ from discord.ext import commands
 from PIL import ImageColor, Image
 import discord
 import io
-class poll(commands.Cog):
+class misc(commands.Cog):
     '''
     super fancy shmancy poll command
     '''
@@ -34,5 +34,13 @@ class poll(commands.Cog):
         if isinstance(error, commands.CommandInvokeError):
             await ctx.send('`ERROR: invalid hex code`')
 
+    @commands.command()
+    async def flagthis(self, ctx):
+        """
+        : adds flag reaction to the message
+        """
+        emoji = '<:flag:584174141737926666>'
+        await ctx.message.add_reaction(emoji)
+
 def setup(client):
-    client.add_cog(poll(client))
+    client.add_cog(misc(client))
