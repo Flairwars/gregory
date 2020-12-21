@@ -265,8 +265,35 @@ class poll(commands.Cog):
             self.sched.remove_job(poll_id)
         
         sql.remove_poll(poll_id)
-
         await ctx.send('deleted poll')
+
+    @commands.command(aliases=['raidpoll','rp'])
+    async def raid_poll(self, ctx, title='Raid Times'):
+        '''
+        : creates a poll for raiding
+        '''
+        emotes = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰"]
+        description = '''
+        🇦 1:00\n
+        🇧 2:00\n
+        🇨 3:00\n
+        🇩 4:00\n
+        🇪 5:00\n
+        🇫 6:00\n
+        🇬 7:00\n
+        🇭 8:00\n
+        🇮 9:00\n
+        🇯 10:00\n
+        🇰 12:00\n
+        '''
+        embed = discord.Embed(title=f'{title} AM',color=discord.Color.green(),description=description)
+        msg = await ctx.send(embed=embed)
+        embed = discord.Embed(title=f'{title} PM',color=discord.Color.green(),description=description)
+        msg2 = await ctx.send(embed=embed)
+
+        for emote in emotes:
+            await msg.add_reaction(emote)
+            await msg2.add_reaction(emote)
 
     @poll2.error
     async def poll2_error(self, ctx, error):
