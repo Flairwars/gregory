@@ -9,7 +9,7 @@ class flagthis(commands.Cog, name='Flagging so you don\'t have to'):
     def __init__(self, client):
         self.client = client
 
-
+    @commands.command()
     async def flagthis(self, ctx):
         """
         : adds flag reaction to the message
