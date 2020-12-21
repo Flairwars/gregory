@@ -11,7 +11,6 @@ intents.members = True
 client = commands.Bot(command_prefix = '.', intents=intents)
 
 # loads all cogs 
-
 for filename in os.listdir('./commands'):
     if filename.endswith('.py'):
         client.load_extension(f'commands.{filename[:-3]}')
