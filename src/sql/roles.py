@@ -69,7 +69,7 @@ class sql_class():
         input: <str> role_id, <str> guild_id
         output: <str> role_id
         '''
-        sql = "SELECT * FROM roles "
+        sql = "SELECT * FROM roles WHERE guild_id = %s"
 
         self.conn.ping(reconnect=True)
         self.cursor.execute(sql)
