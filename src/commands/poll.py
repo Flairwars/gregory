@@ -1,10 +1,9 @@
 import re
 import discord
-import asyncio
 import datetime
 from discord.ext import commands
 from converter.datetimeCalc import datetimeCal
-from sql.pollv2 import sql_class
+from sql.poll import sql_class
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 class poll(commands.Cog):
@@ -43,7 +42,7 @@ class poll(commands.Cog):
              
     async def _poll2_end(self, poll_id):
         '''
-        ends via the job
+        ends
         '''
         sql = sql_class()
         poll_info, votes = sql.get_poll_info(str(poll_id))
@@ -83,7 +82,7 @@ class poll(commands.Cog):
         user_id = str(payload.user_id)
         
         # breaks if its the bot
-        if user_id == '771011111242956820':
+        if user_id == self.client.user.id:
             return
         
         if payload.emoji.name not in self.pollsigns:
