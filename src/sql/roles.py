@@ -63,16 +63,16 @@ class sql_class():
             self.conn.rollback()
             print(str(exc))
 
-    def get_roles(self):
+    def get_roles(self, guild_id):
         '''
         gets role_id from roles table
         input: <str> role_id, <str> guild_id
         output: <str> role_id
         '''
-        sql = "SELECT * FROM roles WHERE guild_id = %s"
+        sql = "SELECT id FROM roles WHERE guild_id = %s"
 
         self.conn.ping(reconnect=True)
-        self.cursor.execute(sql)
+        self.cursor.execute(sql, guild_id)
         data = self.cursor.fetchall()
         if data:
             return data
