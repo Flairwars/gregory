@@ -268,7 +268,7 @@ class poll(commands.Cog):
         await ctx.send('deleted poll')
 
     @commands.command(aliases=['raidpoll','rp'])
-    async def raid_poll(self, ctx, title='Raid Times'):
+    async def raid_poll(self, ctx, *,title='Raid Times'):
         '''
         : creates a poll for raiding
         '''
