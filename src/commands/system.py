@@ -24,7 +24,7 @@ class system(commands.Cog, name='System commands'):
         '''
         print(f'loading {cog}...')
         self.client.load_extension(f'commands.{cog}')
-        await ctx.send(f'successfully loaded {cog}')
+        await ctx.send(f'`successfully loaded {cog}`')
         print('success!')
 
     @commands.command()
@@ -35,7 +35,7 @@ class system(commands.Cog, name='System commands'):
         '''
         print(f'unloading {cog}...')
         self.client.unload_extension(f'commands.{cog}')
-        await ctx.send(f'successfully unloaded {cog}')
+        await ctx.send(f'`successfully unloaded {cog}`')
         print('success!')
 
     @commands.command()
@@ -47,7 +47,7 @@ class system(commands.Cog, name='System commands'):
         print(f'reloading {cog}...')
         self.client.unload_extension(f'commands.{cog}')
         self.client.load_extension(f'commands.{cog}')
-        await ctx.send(f'successfully reloaded {cog}')
+        await ctx.send(f'`successfully reloaded {cog}`')
         print('success!')
 
 
