@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 
 class flagthis(commands.Cog, name='Flagging so you don\'t have to'):
@@ -15,8 +14,7 @@ class flagthis(commands.Cog, name='Flagging so you don\'t have to'):
         : adds flag reaction to the message
         """
         emoji = '<:flag:584174141737926666>'
-        await ctx.add_reaction(emoji)
-
+        await ctx.message.add_reaction(emoji)
 
 def setup(client):
-    client.add_cog(base(client))
+    client.add_cog(flagthis(client))
