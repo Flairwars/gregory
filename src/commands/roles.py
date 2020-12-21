@@ -100,10 +100,11 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
 
     def _update_roles(self, member):
         sql = sql_class()
-        db_roles = sql.get_roles()
 
         guildRoles = member.guild.roles
         guildId = str(member.guild.id)
+
+        db_roles = sql.get_roles(guildId)
 
         for role in guildRoles:
             roleId = str(role.id)
