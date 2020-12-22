@@ -8,6 +8,18 @@ class links(commands.Cog, name='Making it easier to link since 2020'):
     def __init__(self, client):
         self.client = client
 
+
+    @commands.command(aliases = ['megainvite', 'megainv', 'megaInv'])
+    async def megaInvite(self, ctx):
+        """
+        : provides a link to the megaserver
+        """
+        embed=discord.Embed(title="https://discord.com/invite/f647g7Z", url="https://discord.com/invite/f647g7Z", color=discord.Color.green())
+        embed.set_author(name="Flairwars Megaserver")
+        embed.set_thumbnail(url="https://cdn.discordapp.com/icons/463794005231271976/a_dad8b99b5351a2c8eaf18d9b77e2ad6e.jpg")
+
+
+
     @commands.command(aliases = ['s', 'subreddit'])
     async def sub(self, ctx, color):
         """
@@ -40,7 +52,8 @@ class links(commands.Cog, name='Making it easier to link since 2020'):
             embed.set_author(name="Purple Imperium")
             embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/600807913044443147.png?v=1")
         else:
-            ctx.send()
+            ctx.send('You did not give me a valid sub to look up :()')
+            return
 
         await ctx.send(embed=embed)
 
