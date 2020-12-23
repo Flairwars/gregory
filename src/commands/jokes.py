@@ -1,8 +1,4 @@
-import discord
-import random
 from discord.ext import commands
-from random import randint
-
 allowedChannels = [588354715625193473, 579538738988711958]
 
 
