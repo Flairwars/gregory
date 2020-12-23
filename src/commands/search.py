@@ -109,7 +109,7 @@ class misc(commands.Cog):
     @commands.command()
     async def weather(self, ctx, *, query=' '):
         '''
-        Gives you the weather :)
+        : Gives you the weather :)
         '''
         data = await weather.get_current(query)
 
@@ -132,6 +132,9 @@ class misc(commands.Cog):
 
     @commands.command(aliases=['wouldyourather'])
     async def wyr(self, ctx, *, query=' '):
+        '''
+        : would you rather x or y
+        '''
         options = await wyr.get_wyr()
 
         response = f'**Would you rather** (http://either.io/)\n:regional_indicator_a: {options["blue"]}'
@@ -143,6 +146,9 @@ class misc(commands.Cog):
 
     @commands.command()
     async def xkcd(self, ctx, identifier=' '):
+        '''
+        : get an xkcd comic
+        '''
         comic = await xkcd.get_xkcd(identifier)
         embed = discord.Embed(title=f'#{comic["num"]} - {comic["safe_title"]}',
                               description=f'[{comic["alt"]}](https://xkcd.com/{comic["num"]}/)')
