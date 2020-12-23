@@ -12,6 +12,13 @@ class misc(commands.Cog):
     def __init__(self, client):
         self.client = client
     
+    @commands.command(aliases=['git'])
+    async def github(self, ctx):
+        """
+        : sends link to the github repo
+        """
+        await ctx.send('https://github.com/Blotz/gregory')
+        
     @commands.command(aliases=['colour'])
     async def color(self, ctx, hex : str):
         '''

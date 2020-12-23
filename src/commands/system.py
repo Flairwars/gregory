@@ -55,7 +55,6 @@ class system(commands.Cog, name='System commands'):
         print('success!')
 
 
-
     # Loading and unloading of cogs Error handling
     @load.error
     async def load_error(self, ctx, error):
