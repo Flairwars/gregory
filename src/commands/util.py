@@ -1,9 +1,8 @@
-import discord
 from discord.ext import commands, tasks
 from utils import count_utils
 
 
-class Util(commands.Cog, name='useful'):
+class Util(commands.Cog, name='Utils'):
     '''
     No commands. Just utilities
     '''
