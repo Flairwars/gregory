@@ -29,7 +29,7 @@ async def generate_urban_embed(definition, n, query):
 
     embed = discord.Embed(title=f'Urban Dictionary\'s results for {title}',
                           description=description,
-                          color=discord.Color(0x4f9406))
+                          color=discord.Color.green())
     embed.set_footer(
         text='👍 : ' + str(definition[n]['votes']['up']) + ' | 👎 : ' + str(definition[n]['votes']['down']))
 
@@ -44,7 +44,6 @@ class search(commands.Cog, name='fun'):
     def __init__(self, client):
         self.client = client
 
-        
     @commands.command(aliases=['ub'])
     async def urban(self, ctx, *, query=' '):
         """
@@ -153,7 +152,7 @@ class search(commands.Cog, name='fun'):
         embed = discord.Embed(title=f'#{comic["num"]} - {comic["safe_title"]}',
                               description=f'[{comic["alt"]}](https://xkcd.com/{comic["num"]}/)')
         embed.set_image(url=comic['img'])
-        embed.color = discord.Color(0x4f9406)
+        embed.color = discord.Color.green()
 
         await ctx.send(embed=embed)
 

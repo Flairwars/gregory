@@ -2,7 +2,7 @@ from discord.ext import commands
 allowedChannels = [588354715625193473, 579538738988711958]
 
 
-class jokes(commands.Cog, name='fun'):
+class fun(commands.Cog, name='fun'):
     """
     Gregory is a dank memer :sunglasses:
     """
@@ -57,4 +57,4 @@ class jokes(commands.Cog, name='fun'):
 
 
 def setup(client):
-    client.add_cog(jokes(client))
+    client.add_cog(fun(client))
