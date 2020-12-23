@@ -5,7 +5,7 @@ import io
 from utils import count_utils
 
 
-class misc(commands.Cog):
+class misc(commands.Cog, name='useful'):
     '''
     super fancy shmancy poll command
     '''
