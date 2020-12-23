@@ -1,4 +1,4 @@
-import discord
+from time import time
 from discord.ext import commands
 
 class system(commands.Cog, name='System commands'):
@@ -13,7 +13,11 @@ class system(commands.Cog, name='System commands'):
         """
         : works out latancy of bot
         """
-        await ctx.send(f'Pong! Latency is {round(self.client.latency * 1000)}ms. API Latency is {round(self.client.latency  * 1000)}ms')
+        t1 = time()
+        msg = await ctx.send('`pong`')
+        t2 = time()
+        delay = t2-t1
+        await msg.edit(content=f'`Pong! Latency is {round(delay*1000)}ms. API Latency is {round(self.client.latency  * 1000)}ms`')
 
     # Loading and unloading of cogs for testing
     @commands.command()
@@ -49,7 +53,6 @@ class system(commands.Cog, name='System commands'):
         self.client.load_extension(f'commands.{cog}')
         await ctx.send(f'`successfully reloaded {cog}`')
         print('success!')
-
 
 
     # Loading and unloading of cogs Error handling

@@ -1,10 +1,7 @@
 import asyncio
-
 import discord
 from discord.ext import commands
-
 from apis import urban, weather, wyr, constants, xkcd
-
 
 async def generate_urban_embed(definition, n, query):
     if n < 0:
@@ -32,14 +29,13 @@ async def generate_urban_embed(definition, n, query):
 
     embed = discord.Embed(title=f'Urban Dictionary\'s results for {title}',
                           description=description,
-                          color=discord.Color(0x4f9406))
+                          color=discord.Color.green())
     embed.set_footer(
         text='👍 : ' + str(definition[n]['votes']['up']) + ' | 👎 : ' + str(definition[n]['votes']['down']))
 
     return embed
 
-
-class Search(commands.Cog, name='Search Commands'):
+class search(commands.Cog, name='fun'):
     '''
     Search Commands
     With this you can search for content on various websites :)
@@ -48,7 +44,6 @@ class Search(commands.Cog, name='Search Commands'):
     def __init__(self, client):
         self.client = client
 
-        
     @commands.command(aliases=['ub'])
     async def urban(self, ctx, *, query=' '):
         """
@@ -113,7 +108,7 @@ class Search(commands.Cog, name='Search Commands'):
     @commands.command()
     async def weather(self, ctx, *, query=' '):
         '''
-        Gives you the weather :)
+        : Gives you the weather :)
         '''
         data = await weather.get_current(query)
 
@@ -136,6 +131,9 @@ class Search(commands.Cog, name='Search Commands'):
 
     @commands.command(aliases=['wouldyourather'])
     async def wyr(self, ctx, *, query=' '):
+        '''
+        : would you rather x or y
+        '''
         options = await wyr.get_wyr()
 
         response = f'**Would you rather** (http://either.io/)\n:regional_indicator_a: {options["blue"]}'
@@ -147,13 +145,16 @@ class Search(commands.Cog, name='Search Commands'):
 
     @commands.command()
     async def xkcd(self, ctx, identifier=' '):
+        '''
+        : get an xkcd comic
+        '''
         comic = await xkcd.get_xkcd(identifier)
         embed = discord.Embed(title=f'#{comic["num"]} - {comic["safe_title"]}',
                               description=f'[{comic["alt"]}](https://xkcd.com/{comic["num"]}/)')
         embed.set_image(url=comic['img'])
-        embed.color = discord.Color(0x4f9406)
+        embed.color = discord.Color.green()
 
         await ctx.send(embed=embed)
 
 def setup(client):
-    client.add_cog(Search(client))
+    client.add_cog(search(client))

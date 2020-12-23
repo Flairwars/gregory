@@ -6,8 +6,8 @@ from decouple import config
 # add discord bot perms
 intents = discord.Intents.default()
 intents.presences = True
-
 intents.members = True
+
 client = commands.Bot(command_prefix = '.', intents=intents)
 
 # loads all cogs 
