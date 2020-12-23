@@ -117,7 +117,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
                     found = True
                 
             if found == False and roleName !="@everyone":
-                sql.add_role(roleId, roleName, guildId)
+                sql.add_role(roleId, guildId)
         
 
         # searching for old roles that are deleted
