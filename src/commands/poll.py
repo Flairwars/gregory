@@ -76,14 +76,13 @@ class poll(commands.Cog):
         """
         toggles the voting option for this poll
         """
+        if payload.member == self.client.user:
+            return
+        
         message_id = str(payload.message_id)
         channel_id = str(payload.channel_id)
         guild_id = str(payload.guild_id)
         user_id = str(payload.user_id)
-        
-        # breaks if its the bot
-        if user_id == self.client.user.id:
-            return
         
         if payload.emoji.name not in self.pollsigns:
             return
