@@ -14,7 +14,10 @@ class sql_class():
 
     def add_poll(self, message_id, channel_id, guild_id, name, time, emote_ids, args):
         '''
-        docs go here but imn lazy
+        Adds row to polls table
+        Adds rows to poll options table
+        input: <str> message_id, <str> channel_id, <str> guild_id, <str> name, <datetime> time, <list  int> emote_id, <list str> args
+        output: none
         '''
         sql = "INSERT INTO polls (`message_id`, `channel_id`, `guild_id`, `name`, `time`) VALUES (%s,%s,%s,%s,%s)"
         sql2 = "SELECT LAST_INSERT_ID() FROM polls"
@@ -36,7 +39,14 @@ class sql_class():
 
     def toggle_vote(self, message_id, channel_id, guild_id, emote_id, user_id):
         """
-        docs go here but imn lazy
+        checks whether the poll exists
+        checks whether user exists
+        adds user
+        check if user has voted 
+        adds user vote
+        removes user vote
+        input: <str> message_id, <str> channel_id, <str> guild_id, <str> emote_id, <str> user_id
+        output: None, True, False
         """
         get_poll = "SELECT id FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
         get_user = "SELECT id FROM users WHERE id = %s AND guild_id = %s"
@@ -86,6 +96,11 @@ class sql_class():
         return None
     
     def check_polls(self, user_id):
+        '''
+        gets poll id from all the polls that someone as voted on
+        input: <str> user_id
+        output: <list int> poll_id
+        '''
         sql = "SELECT polls.id FROM polls,votes WHERE votes.user_id = %s AND polls.id = votes.poll_id"
 
         self.conn.ping(reconnect=True)
@@ -94,6 +109,11 @@ class sql_class():
         return data
 
     def check_votes(self, user_id, poll_id):
+        '''
+        checks how many votes are on a poll and reponds with the name of the option
+        input: <str> user_id, <int> poll_id
+        output: <list str> arg
+        '''
         sql = """
         SELECT poll_options.`arg`, polls.`name`
         FROM poll_options,votes,polls
@@ -110,6 +130,11 @@ class sql_class():
         return data
 
     def get_poll_name(self, poll_id):
+        '''
+        gets the poll name from polls
+        input: <int> poll_id
+        output: <str> name
+        '''
         sql = "SELECT name FROM polls WHERE id = %s"
 
         self.conn.ping(reconnect=True)
@@ -118,6 +143,11 @@ class sql_class():
         return data[0][0]
 
     def get_polls(self):
+        '''
+        gets all poll ids and times
+        input: None
+        output: <list int> poll_id, <list datetime> time
+        '''
         sql = "SELECT id, time FROM polls"
 
         self.conn.ping(reconnect=True)
@@ -126,6 +156,11 @@ class sql_class():
         return data
     
     def get_poll_info(self, poll_id):
+        '''
+        gets the name, channel and votes of a poll
+        input: <int> poll_id
+        output: <str> channel_id, <str> name, <list str> user_id, <list str> arg
+        '''
         sql = "SELECT channel_id,name FROM polls WHERE id = %s"
         sql2 = """SELECT votes.user_id,poll_options.arg 
         FROM votes,poll_options 
@@ -145,6 +180,11 @@ class sql_class():
         return poll_info[0], votes
 
     def remove_poll(self, poll_id):
+        '''
+        deletes poll from poll
+        input: <str> poll_id
+        output: None
+        '''
         sql = "DELETE FROM polls WHERE id = %s"
         self.conn.ping(reconnect=True)
 
@@ -156,6 +196,11 @@ class sql_class():
             print(str(exc))
     
     def location_get_poll(self, message_id, channel_id, guild_id):
+        '''
+        gets poll via message location
+        input: <str> message_id, <str> channel_id, <str> guild_id
+        output: <int> id, <datetime> time
+        '''
         sql = "SELECT id,time FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
 
         self.conn.ping(reconnect=True)
