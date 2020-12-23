@@ -10,7 +10,6 @@ class base(commands.Cog, name='Basic Commands'):
         self.client = client
 
     @commands.command(aliases=['git'])
-
     async def github(self, ctx):
         """
         : sends link to the github repo

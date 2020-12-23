@@ -10,7 +10,6 @@ class jokes(commands.Cog, name='memery bullshit'):
     """
     Gregory is a dank memer :sunglasses:
     """
-
     def __init__(self, client):
         self.client = client
         self.uwu_conversions = {}
@@ -37,7 +36,6 @@ class jokes(commands.Cog, name='memery bullshit'):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-
         if message.author == self.client.user:
             return
 
@@ -54,6 +52,9 @@ class jokes(commands.Cog, name='memery bullshit'):
 
     @commands.command(aliases=['uwu', 'uwuify', 'owo', 'owoify', 'owoifier'])
     async def uwuifier(self, ctx, *, message):
+        '''
+        : uwus your messages :3
+        '''
         for key, value in self.uwu_conversions.items():
             message = message.replace(key, value)
         await ctx.send(message)

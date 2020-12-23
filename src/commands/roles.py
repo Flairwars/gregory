@@ -38,7 +38,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
         memberRoles = sql.get_user_role(memberId, memberGuildId)
 
         if len(memberRoles) < 1:
-            await ctx.send(f'{member.name} has no roles in my datatable')
+            await ctx.send(f'`{member.name} has no roles in my datatable`')
             return
         
 
@@ -117,7 +117,7 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
                     found = True
                 
             if found == False and roleName !="@everyone":
-                sql.add_role(roleId, roleName, guildId)
+                sql.add_role(roleId, guildId)
         
 
         # searching for old roles that are deleted
@@ -152,7 +152,6 @@ class persistant_role(commands.Cog, name='Persistant Roles'):
             if found == False:
                 sql.add_guild(guildId)
         
-
         # searching for old guilds that are deleted
         for db_guild in db_guilds:
             db_guildId = db_guild[0]

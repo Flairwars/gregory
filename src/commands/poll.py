@@ -76,14 +76,13 @@ class poll(commands.Cog):
         """
         toggles the voting option for this poll
         """
+        if payload.member == self.client.user:
+            return
+        
         message_id = str(payload.message_id)
         channel_id = str(payload.channel_id)
         guild_id = str(payload.guild_id)
         user_id = str(payload.user_id)
-        
-        # breaks if its the bot
-        if user_id == self.client.user.id:
-            return
         
         if payload.emoji.name not in self.pollsigns:
             return
@@ -103,7 +102,7 @@ class poll(commands.Cog):
     @commands.has_permissions(administrator=True) 
     async def poll2(self, ctx, *, args):
         """
-        .poll2 WWDDhhmmss (optional) {poll name} [arg1] [arg2] ...
+        : Create poll. time is optional
         """
         time = None
         # checks message against regex to see if it matches
@@ -170,7 +169,7 @@ class poll(commands.Cog):
     @commands.command(aliases=['checkvotes'])
     async def check_votes(self, ctx):
         '''
-        allows the user to check who they voted for
+        : allows the user to check who they voted for
         '''
         sql = sql_class()
         polls = sql.check_polls(str(ctx.author.id))
@@ -194,7 +193,7 @@ class poll(commands.Cog):
     @commands.has_permissions(administrator=True) 
     async def end_poll(self, ctx, message_id, dm=False):
         '''
-        .endpoll {id} True (if true, it will output to channel)
+        : manually ends a poll. optionally can make it output to channel or dms
         '''
         channel_id = str(ctx.channel.id)
         guild_id = str(ctx.guild.id)
@@ -245,7 +244,7 @@ class poll(commands.Cog):
     @commands.has_permissions(administrator=True) 
     async def delete_poll(self, ctx, message_id):
         '''
-        .deletepoll {id}
+        : deletes poll
         '''
         channel_id = str(ctx.channel.id)
         guild_id = str(ctx.guild.id)
