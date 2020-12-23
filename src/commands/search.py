@@ -1,10 +1,7 @@
 import asyncio
-
 import discord
 from discord.ext import commands
-
 from apis import urban, weather, wyr, constants, xkcd
-
 
 async def generate_urban_embed(definition, n, query):
     if n < 0:
@@ -38,8 +35,7 @@ async def generate_urban_embed(definition, n, query):
 
     return embed
 
-
-class Search(commands.Cog, name='Search Commands'):
+class misc(commands.Cog):
     '''
     Search Commands
     With this you can search for content on various websites :)
@@ -156,4 +152,4 @@ class Search(commands.Cog, name='Search Commands'):
         await ctx.send(embed=embed)
 
 def setup(client):
-    client.add_cog(Search(client))
+    client.add_cog(misc(client))
