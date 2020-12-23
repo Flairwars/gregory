@@ -3,13 +3,16 @@ from utils import count_utils
 
 class count(commands.Cog, name='useful'):
     '''
-    super fancy shmancy poll command
+    Count command shiz
     '''
     def __init__(self, client):
         self.client = client
     
     @commands.command(aliases=["c"])
     async def count(self, ctx, col = " "):
+        '''
+        : count the other color subs
+        '''
         data = await count_utils.get_stats(col.strip())
         if data is None:
             await ctx.send("There was a problem. Did you have a huge typo in the colour?")
