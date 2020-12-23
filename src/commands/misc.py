@@ -3,7 +3,7 @@ from PIL import ImageColor, Image
 import discord
 import io
 from utils import count_utils
-
+from random import randint
 
 class misc(commands.Cog, name='useful'):
     '''
@@ -143,6 +143,32 @@ class misc(commands.Cog, name='useful'):
             await ctx.send('`ERROR: member not found`')
         else:
             print(error)
+    
+    @commands.command(aliases=['dicerole','roll'])
+    async def dice_role(self, ctx, *args):
+        '''
+        : rolls the dice of fate
+        '''
+        description = ''
+        for arg in args:
+            # 3d4
+            arg = arg.lower()
+            index = arg.find('d')
+            dice = int(arg[index+1:])
+            count = arg[:index]
+
+            total = 0
+            if count == '':
+                count = 1
+            count = int(count)
+
+            description += f'dice: {dice}, count: {count}\n'
+            for n in range(count):
+                roll = randint(1, dice)
+                total += roll
+                description += f'{roll}, '
+            description = description[:-2]
+            description += f'\nTotal: {total}\n\n'
 
 def setup(client):
     client.add_cog(misc(client))
