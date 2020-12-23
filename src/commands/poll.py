@@ -13,6 +13,7 @@ class poll(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
+        self.reg = re.compile('({.+})\ *(\[[^\n\r\[\]]+\] *)+')
         self.sched = AsyncIOScheduler()
         self.sched.start()
 
@@ -106,8 +107,7 @@ class poll(commands.Cog):
         """
         time = None
         # checks message against regex to see if it matches
-        reg = re.compile('({.+})\ *(\[[^\n\r\[\]]+\] *)+')
-        if not reg.match(args):
+        if not self.reg.match(args):
             # check if it has time at start of command
             # splits arguments and datetime
             index = args.find(' ')
@@ -119,7 +119,7 @@ class poll(commands.Cog):
             time = await calc.convert(ctx, time)
 
             # checks if the args are formatted correctly
-            if not reg.match(args):
+            if not self.reg.match(args):
                 raise discord.errors.DiscordException
 
         # have args and possible datetime
@@ -294,10 +294,55 @@ class poll(commands.Cog):
             await msg.add_reaction(emote)
             await msg2.add_reaction(emote)
 
+    @commands.command()
+    async def poll(self, ctx, *, args):
+        '''
+        : normal poll
+        '''
+        if not self.reg.match(args):
+            await ctx.message.add_reaction('👍')
+            await ctx.message.add_reaction('👎')
+            await ctx.message.add_reaction('🤷‍♀️')
+            return
+
+        args = args.split('[')
+        name = args.pop(0)[1:]
+        name = name[:name.find('}')]
+        
+        args = [arg[:arg.find(']')] for arg in args] # thanks ritz for this line
+
+        if len(args) > 20:
+            await ctx.send(f"bad {ctx.author.name}! thats too much polling >:(")
+            return
+        elif len(args) == 0:
+            await ctx.send(f"bad {ctx.author.name}! thats too little polling >:(")
+            return
+        elif name == '' or '' in args:
+            await ctx.send(f"bad {ctx.author.name}! thats too simplistic polling >:(")
+            return
+        
+        description = ''
+        for count in range(len(args)):
+            description += f'{self.pollsigns[count]} {args[count]}\n\n'
+
+        embed = discord.Embed(title=name,color=discord.Color.green(),description=description)
+        msg = await ctx.send(embed=embed)
+
+        #add reactions
+        for count in range(len(args)):
+            await msg.add_reaction(self.pollsigns[count])
+        
     @poll2.error
     async def poll2_error(self, ctx, error):
         if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
             await ctx.send('`ERROR Missing Required Argument: make sure it is .poll2 <time ddhhmmss> {title} [args]`')
+        else:
+            print(error)
+    
+    @poll.error
+    async def poll2_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await ctx.send('`ERROR Missing Required Argument: make sure it is .poll {title} [args]`')
         else:
             print(error)
     
