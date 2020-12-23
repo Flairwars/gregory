@@ -52,20 +52,6 @@ class misc(commands.Cog, name='useful'):
         emoji = '<:flag:584174141737926666>'
         await ctx.message.add_reaction(emoji)
 
-    @commands.command(aliases=["c"])
-    async def count(self, ctx, col = " "):
-        data = await count_utils.get_stats(col.strip())
-        if data is None:
-            await ctx.send("There was a problem. Did you have a huge typo in the colour?")
-        else:
-            response = f'**Situation over on {data["colour"][0].upper() + data["colour"][1:]}**'
-            for page in range(0,5):
-                response += f'\n**Page {page+1}**\n'
-                for key in data[page].keys():
-                    response += key + " : " + str(data[page][key]) + "\n"
-
-            await ctx.send(response)
-
     @commands.command(aliases = ['megainvite', 'megainv', 'megaInv'])
     async def megaInvite(self, ctx):
         """
@@ -119,6 +105,44 @@ class misc(commands.Cog, name='useful'):
             return
 
         await ctx.send(embed=embed)
+
+    @commands.command(aliases=["c"])
+    async def count(self, ctx, col = " "):
+        data = await count_utils.get_stats(col.strip())
+        if data is None:
+            await ctx.send("There was a problem. Did you have a huge typo in the colour?")
+        else:
+            response = f'**Situation over on {data["colour"][0].upper() + data["colour"][1:]}**'
+            for page in range(0,5):
+                response += f'\n**Page {page+1}**\n'
+                for key in data[page].keys():
+                    response += key + " : " + str(data[page][key]) + "\n"
+
+            await ctx.send(response)
+    
+    @commands.command()
+    async def pfp(self, ctx, *, member:discord.Member = None):
+        '''
+        : Gets your/members pfp
+        '''
+        url = ''
+        if member==None:
+            url = ctx.author.avatar_url
+            print(url)
+        else:
+            url = member.avatar_url
+        
+        embed = discord.Embed(color=discord.Color.green())
+        embed.set_image(url=url)
+
+        await ctx.send(embed=embed)
+
+    @pfp.error
+    async def pfp_error(self, ctx, error):
+        if isinstance(error, commands.errors.MemberNotFound):
+            await ctx.send('`ERROR: member not found`')
+        else:
+            print(error)
 
 def setup(client):
     client.add_cog(misc(client))
