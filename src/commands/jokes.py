@@ -2,7 +2,7 @@ from discord.ext import commands
 allowedChannels = [588354715625193473, 579538738988711958]
 
 
-class jokes(commands.Cog, name='memery bullshit'):
+class jokes(commands.Cog, name='fun'):
     """
     Gregory is a dank memer :sunglasses:
     """

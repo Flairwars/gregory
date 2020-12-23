@@ -3,7 +3,7 @@ from discord.ext import commands, tasks
 from utils import count_utils
 
 
-class Util(commands.Cog, name='Utilities'):
+class Util(commands.Cog, name='useful'):
     '''
     No commands. Just utilities
     '''

@@ -6,9 +6,9 @@ from converter.datetimeCalc import datetimeCal
 from sql.poll import sql_class
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-class poll(commands.Cog):
+class poll(commands.Cog, name='Polls'):
     '''
-    super fancy shmancy poll command
+    Too Much Poll
     '''
     def __init__(self, client):
         self.client = client
@@ -103,7 +103,7 @@ class poll(commands.Cog):
     @commands.has_permissions(administrator=True) 
     async def poll2(self, ctx, *, args):
         """
-        : Create poll. time is optional
+        : Fancy poll. Admin only
         """
         time = None
         # checks message against regex to see if it matches
