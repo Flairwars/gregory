@@ -28,3 +28,15 @@ class reddit_class():
         
         posts = posts[stickies:]
         return posts
+    
+    def get_hotposts(self,sub:str ,num:int = 100):
+        '''
+        gets <int> num posts from green
+        input: <int> num
+        output: <list class> posts
+        '''
+        posts = []
+        for submission in self.reddit.subreddit(sub).hot(limit=num):
+            posts.append(submission)
+        
+        return posts

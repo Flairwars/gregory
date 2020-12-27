@@ -26,3 +26,32 @@ class sql_class():
         if color:
             return color[0][0]
         return None
+    
+    def add_user(self, username, color):
+        '''
+        adds a user to the database
+        input: <str> username, <str> color
+        output: None
+        '''
+        sql = 'INSERT INTO redditusers (`username`,`color`) VALUES (%s,%s)'
+        
+        self.conn.ping(reconnect=True)
+        try:
+            self.cursor.execute(sql, (username, color))
+            self.conn.commit()
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
+    
+    def user_exists(self, username):
+        '''
+        checks if a user has been added to the database before
+        '''
+        sql = 'SELECT username FROM redditusers WHERE username = %s'
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql, username)
+        username = self.cursor.fetchall()
+
+        if username:
+            return True
+        return False
