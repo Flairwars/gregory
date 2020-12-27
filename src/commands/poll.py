@@ -1,6 +1,7 @@
 import re
 import discord
 import datetime
+from asyncio import sleep
 from discord.ext import commands
 from converter.datetimeCalc import datetimeCal
 from sql.poll import sql_class
@@ -162,6 +163,8 @@ class poll(commands.Cog, name='Polls'):
             await message.add_reaction(self.pollsigns[count])
 
         sql = sql_class()
+        self._update_guilds()
+
         poll_id = sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, self.pollsigns, args)
         if time:
             self.sched.add_job(self._poll2_end, 'date', run_date=time, args=[poll_id],id=poll_id)
@@ -175,9 +178,12 @@ class poll(commands.Cog, name='Polls'):
         polls = sql.check_polls(str(ctx.author.id))
         # removes duplicate polls from data
         polls = list(dict.fromkeys(polls))
+        await ctx.message.delete()
         
         if len(polls) == 0:
-            await ctx.send('You havent voted on any active polls')
+            msg = await ctx.send('You havent voted on any active polls')
+            await sleep(10)
+            await msg.delete()
         else:
             for poll in polls:
                 votes = sql.check_votes(str(ctx.author.id), poll[0])
@@ -239,6 +245,38 @@ class poll(commands.Cog, name='Polls'):
             await ctx.send(embed=embed)
         else:
             await ctx.author.send(embed=embed)
+
+    def _update_guilds(self):
+        sql = sql_class()
+
+        guilds = self.client.guilds
+        db_guilds = sql.get_guilds()
+
+        for guild in guilds:
+            guildId = str(guild.id)
+            found = False
+            for db_guild in db_guilds:
+                db_guildId = db_guild[0]
+                if guildId == db_guildId:
+                    #print(db_roleId, roleName)
+                    found = True
+                
+            if found == False:
+                sql.add_guild(guildId)
+        
+        # searching for old guilds that are deleted
+        for db_guild in db_guilds:
+            db_guildId = db_guild[0]
+
+            found = False
+            for guild in guilds:
+                guildId = str(guild.id)
+                
+                if guildId == db_guildId:
+                    found = True
+                
+            if found == False:
+                sql.remove_guild(db_guildId)
     
     @commands.command(aliases=['deletepoll','remove_poll', 'removepoll'])
     @commands.has_permissions(administrator=True) 
