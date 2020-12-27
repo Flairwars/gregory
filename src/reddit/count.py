@@ -1,5 +1,6 @@
 import praw
 from decouple import config
+
 class reddit_class():
     def __init__(self):
         self.reddit = praw.Reddit(

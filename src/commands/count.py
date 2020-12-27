@@ -1,7 +1,6 @@
 from discord.ext import commands, tasks
 from sql.count import sql_class
 from reddit.count import reddit_class
-from time import time
 
 class count(commands.Cog, name='useful'):
     '''
@@ -83,7 +82,6 @@ class count(commands.Cog, name='useful'):
             (lambda flair:"knight" in flair, "purple")
         ]
 
-
     def cog_unload(self):
         self.update_colour_database.cancel()
     
@@ -121,10 +119,6 @@ class count(commands.Cog, name='useful'):
                     users.append(author)
                     if not sql.user_exists(author):
                         sql.add_user(author, color)
-        
-        
-
-        
 
     
     @commands.command(aliases=["c"])
