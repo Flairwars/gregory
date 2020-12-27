@@ -95,10 +95,10 @@ class poll(commands.Cog, name='Polls'):
             sql = sql_class()
             toggle = sql.toggle_vote(message_id, channel_id, guild_id, emote_id, user_id)
 
-            if toggle == False or toggle == True:
-                channel = self.client.get_channel(payload.channel_id)
-                message = await channel.fetch_message(payload.message_id)
-                await message.remove_reaction(payload.emoji, payload.member)        
+
+        channel = self.client.get_channel(payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
+        await message.remove_reaction(payload.emoji, payload.member)
 
     @commands.command(aliases=['poll2electricboogaloo','pollv2'])
     @commands.has_permissions(administrator=True) 
