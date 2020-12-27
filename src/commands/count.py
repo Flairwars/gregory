@@ -74,11 +74,9 @@ class count(commands.Cog, name='useful'):
 
         msg = await ctx.send('Counting...')
 
-        t1 = time()
         # get reddit posts from sub
         reddit = reddit_class()
         posts = reddit.get_125_hotposts(sub[0])
-        t2 = time()
 
         # Include only the author names.
         posts = list(map(lambda a: a.author.name, posts))
@@ -88,7 +86,7 @@ class count(commands.Cog, name='useful'):
             pages.append(posts[i * 25:(i + 1) * 25])
         # [[25 posts], [25 posts], [25 posts], [25 posts], [25 posts]]
         # post = [author_name,author_name,author_name, etc...]
-        t3 = time()
+
         sql = sql_class()
         users = {}
         count = []
@@ -131,12 +129,9 @@ class count(commands.Cog, name='useful'):
             for key in count[page].keys():
                 if count[page][key] != 0:
                     response += f'{key} : {str(count[page][key])}\n'
-        t4 = time()
+
         await msg.edit(content=response)
-        #print(f'{round((t2-t1)*1000)}')
-        #print(f'{round((t3-t2)*1000)}')
-        #print(f'{round((t4-t3)*1000)}')
-        
+
 
 
 

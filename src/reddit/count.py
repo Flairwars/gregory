@@ -1,6 +1,5 @@
 import praw
 from decouple import config
-from time import time
 class reddit_class():
     def __init__(self):
         self.reddit = praw.Reddit(
@@ -13,17 +12,13 @@ class reddit_class():
         """
         gets the top 125 posts from hot on a reddit sub
         input: <str> sub name
-        output: ???
+        output: <list post>
         """
-        t1= time()
         #posts = filter(lambda x: x.stickied == False, list(iter(self.reddit.subreddit(sub).hot(limit=130))))
         
-        posts = list(iter(self.reddit.subreddit(sub).hot(limit=130)))
+        #posts = list(iter(self.reddit.subreddit(sub).hot(limit=130)))
+        #posts = filter(lambda x: x.stickied == False, posts)
         
-        t2 = time()
-        posts = filter(lambda x: x.stickied == False, posts)
-        
-        t3 = time()
         posts = []
         stickies = 0
         for submission in self.reddit.subreddit(sub).hot(limit=130):
@@ -32,8 +27,4 @@ class reddit_class():
             posts.append(submission)
         
         posts = posts[stickies:]
-
-        t4 = time()
-        print(f'{round((t2-t1)*1000)}')
-        print(f'{round((t3-t2)*1000)}')
         return posts
