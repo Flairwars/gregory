@@ -207,4 +207,53 @@ class sql_class():
         self.cursor.execute(sql, (message_id, channel_id, guild_id))
         poll_id = self.cursor.fetchall()
         return poll_id
-      
+
+###################################################
+
+    def get_guilds(self):
+        '''
+        gets ids from guilds table
+        input: None
+        output: <str> guild_id
+        '''
+        sql = "SELECT id FROM guilds"
+
+        self.conn.ping(reconnect=True)
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+        if data:
+            return data
+        else:
+            return []
+
+    def add_guild(self, guild_id):
+        '''
+        adds row to guilds table
+        input: <str> guild_id
+        output: <str> None
+        '''
+        sql = 'INSERT INTO guilds (`id`) VALUES (%s)'
+
+        try:
+            self.conn.ping(reconnect=True)
+            self.cursor.execute(sql, guild_id)
+            self.conn.commit()
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
+
+    def remove_guild(self, guild_id):
+        '''
+        deletes row to guilds table
+        input: <str> guild_id
+        output: <str> None
+        '''
+        sql = 'DELETE FROM guilds WHERE `id` = %s'
+
+        try:
+            self.conn.ping(reconnect=True)
+            self.cursor.execute(sql, guild_id)
+            self.conn.commit()
+        except  Exception as exc:
+            self.conn.rollback()
+            print(str(exc))
