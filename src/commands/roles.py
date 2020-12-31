@@ -4,7 +4,7 @@ from discord.utils import get
 import discord
 from sql.roles import sql_class
 
-class persistant_role(commands.Cog, name='Important'):
+class roles(commands.Cog, name='roles'):
     """
     comands and functions for the persistant roles
     """

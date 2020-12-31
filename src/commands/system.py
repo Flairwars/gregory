@@ -1,7 +1,7 @@
 from time import time
 from discord.ext import commands
 
-class system(commands.Cog, name='System commands'):
+class system(commands.Cog, name='system'):
     '''
     system commands
     '''
@@ -49,8 +49,8 @@ class system(commands.Cog, name='System commands'):
         : reloads a catagory of commands
         '''
         print(f'reloading {cog}...')
-        self.client.unload_extension(f'commands.{cog}')
-        self.client.load_extension(f'commands.{cog}')
+        #self.client.unload_extension(f'commands.{cog}')
+        self.client.reload_extension(f'commands.{cog}')
         await ctx.send(f'`successfully reloaded {cog}`')
         print('success!')
 

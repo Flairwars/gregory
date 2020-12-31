@@ -4,7 +4,7 @@ import discord
 import io
 from random import randint
 
-class misc(commands.Cog, name='useful'):
+class misc(commands.Cog, name='misc'):
     '''
     super fancy shmancy poll command
     '''

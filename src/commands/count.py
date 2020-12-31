@@ -2,7 +2,7 @@ from discord.ext import commands, tasks
 from sql.count import sql_class
 from reddit.count import reddit_class
 
-class count(commands.Cog, name='useful'):
+class count(commands.Cog, name='count'):
     '''
     Count command shiz
     '''

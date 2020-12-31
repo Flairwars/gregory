@@ -7,7 +7,7 @@ from converter.datetimeCalc import datetimeCal
 from sql.poll import sql_class
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-class poll(commands.Cog, name='Polls'):
+class poll(commands.Cog, name='poll'):
     '''
     Too Much Poll
     '''
