@@ -60,7 +60,8 @@ class help(commands.Cog, name='help'):
                             if len(com[3]) > 0:
                                 response += f'Aliases: {com[3]}\n\n'
                             response += f'{com[1]}\n\n'
-                            response += f'Usage: {com[2]}'
+                            if len(com[2]) > 0:
+                                response += f'Usage: {com[2]}'
 
         if response == '':
             return await ctx.send(f'I could not find anything for `{query}`')
