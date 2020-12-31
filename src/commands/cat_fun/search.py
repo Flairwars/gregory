@@ -38,10 +38,10 @@ async def generate_urban_embed(definition, n, query):
     return embed
 
 class search(commands.Cog, name='search'):
-    '''
+    """
     Search Commands
     With this you can search for content on various websites :)
-    '''
+    """
 
     def __init__(self, client):
         self.client = client
@@ -50,7 +50,7 @@ class search(commands.Cog, name='search'):
     @commands.command(aliases=['ub'])
     async def urban(self, ctx, *, query=' '):
         """
-        : Looks up a term on Urban Dictionary
+        Looks up a term on Urban Dictionary
         """
         if query != ' ':
             definition = await urban.getDefinitions(query)
@@ -110,9 +110,9 @@ class search(commands.Cog, name='search'):
 
     @commands.command()
     async def weather(self, ctx, *, query=' '):
-        '''
-        : Gives you the weather :)
-        '''
+        """
+        Gives you the weather :)
+        """
         data = await weather.get_current(query)
 
         if query == ' ':
@@ -134,9 +134,9 @@ class search(commands.Cog, name='search'):
 
     @commands.command(aliases=['wouldyourather'])
     async def wyr(self, ctx, *, query=' '):
-        '''
-        : would you rather x or y
-        '''
+        """
+        would you rather x or y
+        """
         options = await wyr.get_wyr()
 
         response = f'**Would you rather** (http://either.io/)\n:regional_indicator_a: {options["blue"]}'
@@ -148,9 +148,9 @@ class search(commands.Cog, name='search'):
 
     @commands.command()
     async def xkcd(self, ctx, identifier=' '):
-        '''
-        : get an xkcd comic
-        '''
+        """
+        get an xkcd comic
+        """
         comic = await xkcd.get_xkcd(identifier)
         embed = discord.Embed(title=f'#{comic["num"]} - {comic["safe_title"]}',
                               description=f'[{comic["alt"]}](https://xkcd.com/{comic["num"]}/)')

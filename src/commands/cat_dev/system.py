@@ -4,9 +4,9 @@ import pathlib
 import os
 
 class system(commands.Cog, name='system'):
-    '''
+    """
     system commands
-    '''
+    """
     def __init__(self, client):
         self.client = client
         self.category = pathlib.Path(__file__).parent.absolute().name[4:]
@@ -14,7 +14,7 @@ class system(commands.Cog, name='system'):
     @commands.command()
     async def ping(self, ctx):
         """
-        : works out latancy of bot
+        works out latancy of bot
         """
         t1 = time()
         msg = await ctx.send('`pong`')
@@ -25,29 +25,29 @@ class system(commands.Cog, name='system'):
     # Loading and unloading of cogs for testing
     @commands.command()
     @commands.is_owner()
-    async def load(self, ctx, input):
-        '''
-        : loads a cog of commands
-        '''
-        input = input.lower()
+    async def load(self, ctx, name):
+        """
+        loads a cog of commands
+        """
+        name = name.lower()
 
-        print(f'loading {input}...')
-        if input in os.listdir(f'./commands'):
-            for cog in os.listdir(f'./commands/{input}'):
+        print(f'loading {name}...')
+        if name in os.listdir(f'./commands'):
+            for cog in os.listdir(f'./commands/{name}'):
                 if cog.endswith('.py'):
                     try:
-                        self.client.load_extension(f'commands.{input}.{cog[:-3]}')
+                        self.client.load_extension(f'commands.{name}.{cog[:-3]}')
                     except:
                         pass
             print('success!')
-            return await ctx.send(f'`successfully loaded category {input}`')
+            return await ctx.send(f'`successfully loaded category {name}`')
         else:
             for category in os.listdir(f'./commands'):
                 for cog in os.listdir(f'./commands/{category}'):
-                    if input == cog[:-3]:
-                        self.client.load_extension(f'commands.{category}.{input}')
+                    if name == cog[:-3]:
+                        self.client.load_extension(f'commands.{category}.{name}')
                         print('success!')
-                        return await ctx.send(f'`successfully loaded {input}`')
+                        return await ctx.send(f'`successfully loaded {name}`')
 
     # print(f'loading {input}...')
     # self.client.load_extension(f'commands.{input}')
@@ -57,29 +57,29 @@ class system(commands.Cog, name='system'):
 
     @commands.command()
     @commands.is_owner()
-    async def unload(self, ctx, input):
-        '''
-        : unloads a cog of commands
-        '''
-        input = input.lower()
+    async def unload(self, ctx, name):
+        """
+        unloads a cog of commands
+        """
+        name = name.lower()
 
-        print(f'loading {input}...')
-        if input in os.listdir(f'./commands'):
-            for cog in os.listdir(f'./commands/{input}'):
+        print(f'loading {name}...')
+        if name in os.listdir(f'./commands'):
+            for cog in os.listdir(f'./commands/{name}'):
                 if cog.endswith('.py'):
                     try:
-                        self.client.unload_extension(f'commands.{input}.{cog[:-3]}')
+                        self.client.unload_extension(f'commands.{name}.{cog[:-3]}')
                     except:
                         pass
             print('success!')
-            return await ctx.send(f'`successfully loaded category {input}`')
+            return await ctx.send(f'`successfully loaded category {name}`')
         else:
             for category in os.listdir(f'./commands'):
                 for cog in os.listdir(f'./commands/{category}'):
-                    if input == cog[:-3]:
-                        self.client.unload_extension(f'commands.{category}.{input}')
+                    if name == cog[:-3]:
+                        self.client.unload_extension(f'commands.{category}.{name}')
                         print('success!')
-                        return await ctx.send(f'`successfully loaded {input}`')
+                        return await ctx.send(f'`successfully loaded {name}`')
 
         #print(f'unloading {input}...')
         #self.client.unload_extension(f'commands.{input}')
@@ -88,29 +88,29 @@ class system(commands.Cog, name='system'):
 
     @commands.command()
     @commands.is_owner()
-    async def reload(self, ctx, input):
-        '''
-        : reloads a cog of commands
-        '''
-        input = input.lower()
+    async def reload(self, ctx, name):
+        """
+        reloads a cog of commands
+        """
+        name = name.lower()
 
-        print(f'loading {input}...')
-        if input in os.listdir(f'./commands'):
-            for cog in os.listdir(f'./commands/{input}'):
+        print(f'loading {name}...')
+        if name in os.listdir(f'./commands'):
+            for cog in os.listdir(f'./commands/{name}'):
                 if cog.endswith('.py'):
                     try:
-                        self.client.reload_extension(f'commands.{input}.{cog[:-3]}')
+                        self.client.reload_extension(f'commands.{name}.{cog[:-3]}')
                     except:
                         pass
             print('success!')
-            return await ctx.send(f'`successfully loaded category {input}`')
+            return await ctx.send(f'`successfully loaded category {name}`')
         else:
             for category in os.listdir(f'./commands'):
                 for cog in os.listdir(f'./commands/{category}'):
-                    if input == cog[:-3]:
-                        self.client.reload_extension(f'commands.{category}.{input}')
+                    if name == cog[:-3]:
+                        self.client.reload_extension(f'commands.{category}.{name}')
                         print('success!')
-                        return await ctx.send(f'`successfully loaded {input}`')
+                        return await ctx.send(f'`successfully loaded {name}`')
 
         #print(f'reloading {input}...')
         #self.client.reload_extension(f'commands.{input}')

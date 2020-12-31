@@ -4,7 +4,7 @@ from discord.ext import commands
 allowedChannels = [588354715625193473, 579538738988711958]
 
 
-class fun(commands.Cog, name='cat_fun'):
+class fun(commands.Cog, name='fun'):
     """
     Gregory is a dank memer :sunglasses:
     """
@@ -51,9 +51,9 @@ class fun(commands.Cog, name='cat_fun'):
 
     @commands.command(aliases=['uwu', 'uwuify', 'owo', 'owoify', 'owoifier'])
     async def uwuifier(self, ctx, *, message):
-        '''
-        : uwus your messages :3
-        '''
+        """
+        uwus your messages :3
+        """
         for key, value in self.uwu_conversions.items():
             message = message.replace(key, value)
         await ctx.send(message)

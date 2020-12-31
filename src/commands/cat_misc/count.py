@@ -5,9 +5,9 @@ from sql.count import sql_class
 from reddit.count import reddit_class
 
 class count(commands.Cog, name='count'):
-    '''
+    """
     Count command shiz
-    '''
+    """
     def __init__(self, client):
         self.client = client
         self.category = pathlib.Path(__file__).parent.absolute().name[4:]
@@ -91,9 +91,9 @@ class count(commands.Cog, name='count'):
     #async def on_cog_unload():
     @tasks.loop(hours=6)
     async def update_colour_database(self):
-        '''
+        """
         automatically updating the reddit user database in the background
-        '''
+        """
         reddit = reddit_class()
         sql = sql_class()
         
@@ -126,9 +126,9 @@ class count(commands.Cog, name='count'):
     
     @commands.command(aliases=["c"])
     async def count(self, ctx, col = "green"):
-        '''
-        : count the other color subs
-        '''
+        """
+        count the other color subs
+        """
         col = col.lower()
         # gets the sub name
         if col not in self.sub.keys():

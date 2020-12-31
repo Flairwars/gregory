@@ -16,9 +16,9 @@ class roles(commands.Cog, name='roles'):
 
     @commands.command(aliases=['removeroles','clearroles','purgeroles'])
     async def remove_roles(self, ctx):
-        '''
-        : remove roles from datatable
-        '''
+        """
+        remove roles from datatable
+        """
         sql = sql_class()
         message = await ctx.send(f"`purging {ctx.author.name}'s roles from datatables...`")
         sql.remove_user_roles(str(ctx.author.id), str(ctx.guild.id))
@@ -28,7 +28,7 @@ class roles(commands.Cog, name='roles'):
     @commands.has_permissions(administrator=True)
     async def add_roles(self, ctx, member:discord.Member):
         """
-        : command which adds roles from when someone last joined the server
+        command which adds roles from when someone last joined the server
         """
         sql = sql_class()
 

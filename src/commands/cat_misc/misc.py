@@ -6,10 +6,10 @@ import discord
 import io
 from random import randint
 
-class misc(commands.Cog, name='cat_misc'):
-    '''
+class misc(commands.Cog, name='misc'):
+    """
     super fancy shmancy poll command
-    '''
+    """
     def __init__(self, client):
         self.client = client
         self.category = pathlib.Path(__file__).parent.absolute().name[4:]
@@ -17,15 +17,15 @@ class misc(commands.Cog, name='cat_misc'):
     @commands.command(aliases=['git'])
     async def github(self, ctx):
         """
-        : sends link to the github repo
+        sends link to the github repo
         """
         await ctx.send('https://github.com/Flairwars/gregory')
         
     @commands.command(aliases=['colour'])
     async def color(self, ctx, hex : str):
-        '''
-        : creates color image and sends it
-        '''
+        """
+        creates color image and sends it
+        """
         if not hex.startswith('#'):
             hex ='#'+hex
         
@@ -49,7 +49,7 @@ class misc(commands.Cog, name='cat_misc'):
     @commands.command()
     async def flagthis(self, ctx):
         """
-        : adds flag reaction to the message
+        adds flag reaction to the message
         """
         emoji = '<:flag:584174141737926666>'
         await ctx.message.add_reaction(emoji)
@@ -57,7 +57,7 @@ class misc(commands.Cog, name='cat_misc'):
     @commands.command(aliases = ['megainvite', 'megainv', 'megaInv'])
     async def megaInvite(self, ctx):
         """
-        : provides a link to the megaserver
+        provides a link to the megaserver
         """
         embed=discord.Embed(title="https://discord.com/invite/f647g7Z", url="https://discord.com/invite/f647g7Z", color=discord.Color.green())
         embed.set_author(name="Flairwars Megaserver")
@@ -68,7 +68,7 @@ class misc(commands.Cog, name='cat_misc'):
     @commands.command(aliases = ['s', 'subreddit'])
     async def sub(self, ctx, color=''):
         """
-        : links the subreddit for the specified color
+        links the subreddit for the specified color
         """
         color = color.lower();
 
@@ -110,9 +110,9 @@ class misc(commands.Cog, name='cat_misc'):
     
     @commands.command()
     async def pfp(self, ctx, *, member:discord.Member = None):
-        '''
-        : Gets your/members pfp
-        '''
+        """
+        Gets your/members pfp
+        """
         if member==None:
             url = ctx.author.avatar_url
             print(url)
@@ -133,9 +133,9 @@ class misc(commands.Cog, name='cat_misc'):
     
     @commands.command(aliases=['dicerole','roll'])
     async def dice_role(self, ctx, *args):
-        '''
-        : rolls the dice of fate
-        '''
+        """
+        rolls the dice of fate
+        """
         description = ''
         for arg in args:
             # 3d4
