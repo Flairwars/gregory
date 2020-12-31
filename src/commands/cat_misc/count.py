@@ -55,7 +55,7 @@ class count(commands.Cog, name='count'):
         "greenie"
         ]
         mod_flairs = [
-            'cat_mod',
+            'mod',
             'boily oil'
         ]
         blue_flairs = [
@@ -75,7 +75,7 @@ class count(commands.Cog, name='count'):
             (lambda flair: flair in green_flairs, 'green'),
             (lambda flair:"verdancy" in flair, "green"),
             # special flairs for oils
-            (lambda flair: flair in mod_flairs, 'cat_mod'),
+            (lambda flair: flair in mod_flairs, 'mod'),
             # special flairs for reds
             (lambda flair:"premier" in flair, "red"),
             (lambda flair:"crimson" in flair, "red"),
