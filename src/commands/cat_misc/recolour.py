@@ -1,15 +1,17 @@
 from discord.ext import commands
 import aiohttp
 import io, discord, re
-from PIL import Image, ImageChops
+from PIL import Image
+import pathlib
 
 
-class recolour(commands.Cog, name='useful'):
+class recolour(commands.Cog, name='recolour'):
     """
     Gregory is a dank memer :sunglasses:
     """
     def __init__(self, client):
         self.client = client
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
 
 
     def isImage(self, data):
