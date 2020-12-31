@@ -8,7 +8,7 @@ intents = discord.Intents.default()
 intents.presences = True
 intents.members = True
 
-client = commands.Bot(command_prefix = '!', intents=intents)
+client = commands.Bot(command_prefix = '.', intents=intents)
 
 # Remove standard cat_help command
 client.remove_command('help')
