@@ -1,22 +1,24 @@
+import pathlib
+
 from discord.errors import DiscordException
 from discord.ext import commands
 from discord.utils import get
 import discord
 from sql.roles import sql_class
 
-class persistant_role(commands.Cog, name='Important'):
+class roles(commands.Cog, name='roles'):
     """
     comands and functions for the persistant roles
     """
     def __init__(self, client):
         self.client = client
-
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
 
     @commands.command(aliases=['removeroles','clearroles','purgeroles'])
     async def remove_roles(self, ctx):
-        '''
-        : remove roles from datatable
-        '''
+        """
+        remove roles from datatable
+        """
         sql = sql_class()
         message = await ctx.send(f"`purging {ctx.author.name}'s roles from datatables...`")
         sql.remove_user_roles(str(ctx.author.id), str(ctx.guild.id))
@@ -26,7 +28,7 @@ class persistant_role(commands.Cog, name='Important'):
     @commands.has_permissions(administrator=True)
     async def add_roles(self, ctx, member:discord.Member):
         """
-        : command which adds roles from when someone last joined the server
+        command which adds roles from when someone last joined the server
         """
         sql = sql_class()
 
@@ -167,4 +169,4 @@ class persistant_role(commands.Cog, name='Important'):
                 sql.remove_guild(db_guildId)
 
 def setup(client):
-    client.add_cog(persistant_role(client))
+    client.add_cog(roles(client))
