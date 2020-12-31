@@ -1,3 +1,4 @@
+import pathlib
 import re
 import discord
 import datetime
@@ -13,6 +14,7 @@ class poll(commands.Cog, name='poll'):
     '''
     def __init__(self, client):
         self.client = client
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
         self.pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
         self.reg = re.compile('({.+})\ *(\[[^\n\r\[\]]+\] *)+')
         self.sched = AsyncIOScheduler()

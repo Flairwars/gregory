@@ -10,13 +10,14 @@ intents.members = True
 
 client = commands.Bot(command_prefix = '!', intents=intents)
 
-# Remove standard help command
+# Remove standard cat_help command
 client.remove_command('help')
 
 # loads all cogs 
-for filename in os.listdir('./commands'):
-    if filename.endswith('.py'):
-        test = client.load_extension(f'commands.{filename[:-3]}')
+for category in os.listdir('./commands'):
+    for cog in os.listdir(f'./commands/{category}'):
+        if cog.endswith('.py'):
+            client.load_extension(f'commands.{category}.{cog[:-3]}')
 
 # prints when bot has started up
 @client.event

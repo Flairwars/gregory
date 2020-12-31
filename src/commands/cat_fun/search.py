@@ -1,4 +1,6 @@
 import asyncio
+import pathlib
+
 import discord
 from discord.ext import commands
 from apis import urban, weather, wyr, constants, xkcd
@@ -43,6 +45,7 @@ class search(commands.Cog, name='search'):
 
     def __init__(self, client):
         self.client = client
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
 
     @commands.command(aliases=['ub'])
     async def urban(self, ctx, *, query=' '):

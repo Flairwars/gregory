@@ -1,3 +1,5 @@
+import pathlib
+
 from discord.errors import DiscordException
 from discord.ext import commands
 from discord.utils import get
@@ -10,7 +12,7 @@ class roles(commands.Cog, name='roles'):
     """
     def __init__(self, client):
         self.client = client
-
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
 
     @commands.command(aliases=['removeroles','clearroles','purgeroles'])
     async def remove_roles(self, ctx):
@@ -167,4 +169,4 @@ class roles(commands.Cog, name='roles'):
                 sql.remove_guild(db_guildId)
 
 def setup(client):
-    client.add_cog(persistant_role(client))
+    client.add_cog(roles(client))

@@ -1,15 +1,18 @@
+import pathlib
+
 from discord.ext import commands
 from PIL import ImageColor, Image
 import discord
 import io
 from random import randint
 
-class misc(commands.Cog, name='misc'):
+class misc(commands.Cog, name='cat_misc'):
     '''
     super fancy shmancy poll command
     '''
     def __init__(self, client):
         self.client = client
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
     
     @commands.command(aliases=['git'])
     async def github(self, ctx):

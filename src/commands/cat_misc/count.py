@@ -1,3 +1,5 @@
+import pathlib
+
 from discord.ext import commands, tasks
 from sql.count import sql_class
 from reddit.count import reddit_class
@@ -8,6 +10,7 @@ class count(commands.Cog, name='count'):
     '''
     def __init__(self, client):
         self.client = client
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
         self.update_colour_database.start()
         red_sub = ("DSRRed", "red")
         orange_sub = ("EternalOrange", "orange")
@@ -52,7 +55,7 @@ class count(commands.Cog, name='count'):
         "greenie"
         ]
         mod_flairs = [
-            'mod',
+            'cat_mod',
             'boily oil'
         ]
         blue_flairs = [
@@ -72,7 +75,7 @@ class count(commands.Cog, name='count'):
             (lambda flair: flair in green_flairs, 'green'),
             (lambda flair:"verdancy" in flair, "green"),
             # special flairs for oils
-            (lambda flair: flair in mod_flairs, 'mod'),
+            (lambda flair: flair in mod_flairs, 'cat_mod'),
             # special flairs for reds
             (lambda flair:"premier" in flair, "red"),
             (lambda flair:"crimson" in flair, "red"),

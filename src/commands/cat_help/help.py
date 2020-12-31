@@ -1,22 +1,22 @@
 from discord.ext import commands
 from importlib import import_module
+import pathlib
 import pprint
 
-class help(commands.Cog, name='help'):
+class help(commands.Cog, name='cat_help'):
     '''
     Help Command
     '''
 
     def __init__(self, client):
         self.client = client
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
 
     @commands.command()
     async def help(self, ctx,*cog):
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(self.client.cogs)
-        from src.commands import misc
-        test = import_module('src.commands.misc')
-        test = test.__getattribute__('misc')
-        await test.github()
+        for cog in self.client.cogs.values():
+            print(cog.category)
+        pass
+
 def setup(client):
     client.add_cog(help(client))
