@@ -45,7 +45,7 @@ class help(commands.Cog, name='help'):
                     response = response[0:-2] + '`'
         else:
             if query in categories.keys():
-                response += f'**{query[:1].upper() + query[1:]} Category**\n'
+                response += f'**{query.capitalize()} Category**\n'
                 response += 'To get more info on each command itself, simply do `help <command>`!\n'
                 response += 'Commands:\n'
 
