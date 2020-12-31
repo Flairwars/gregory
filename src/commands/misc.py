@@ -16,7 +16,7 @@ class misc(commands.Cog, name='useful'):
         """
         : sends link to the github repo
         """
-        await ctx.send('https://github.com/Blotz/gregory')
+        await ctx.send('https://github.com/Flairwars/gregory')
         
     @commands.command(aliases=['colour'])
     async def color(self, ctx, hex : str):
