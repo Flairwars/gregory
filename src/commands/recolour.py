@@ -11,9 +11,9 @@ class recolour(commands.Cog, name='useful'):
     def __init__(self, client):
         self.client = client
 
+
     def isImage(self, data):
         try:
-            Image.open(data)
             Image.open(io.BytesIO(data))
         except IOError:
             return False
@@ -24,7 +24,6 @@ class recolour(commands.Cog, name='useful'):
     @commands.command(aliases=['recolor', 'rc'])
     async def recolour(self, ctx, colour='green', strength:float=100):
         '''
-        call with image attached. colour can be one of [red, orange, yellow, green, blue, purple], or just the first letter of any.
         Call with image attached. colour can be one of [red, orange, yellow, green, blue, purple], or just the first letter of any.
         If no image is attached, bot will search recent messages for the most recent image or image link.
         '''
@@ -49,42 +48,9 @@ class recolour(commands.Cog, name='useful'):
         if len(colour) == 1:
             colour = additionColours[colour]
 
-        if not ctx.message.attachments:
-            msgLimit = 10
-            regex = re.compile(r'https?:/.*\.(png|jpg|jpeg|gif|jfif|bmp)')
-            
-            await ctx.send(f'Searching for image in last {msgLimit} messages…')
-            async for msg in ctx.channel.history(limit=msgLimit): # Amazing regex to check for links (more or less)
-                print(msg.content)
-                m = regex.search(msg.content)
-                if m:
-                    print('xxxxxxxxxxxxxxxxx')
-                    print(m.group())
-                    async with aiohttp.ClientSession() as session:
-                        print('dddddddddddddddddddddddd')
-                        # note that it is often preferable to create a single session to use multiple times later - see below for this.
-                        async with session.get(m.group()) as resp:
-                            print('xkkkkkkkkkkkkkkkkkkkkkkkkk')
-                            buf = io.BytesIO(await resp.read())
-                            if not self.isImage(buf): continue
+        if colour not in additionColours:
+            raise discord.errors.DiscordException
 
-                if msg.attachments:
-                    data = await msg.attachments[0].read()
-                    if not self.isImage(io.BytesIO(data)): continue
-                    break
-            await ctx.send(f'No image found in last {msgLimit} messages.')
-            
-
-## using a predefined ClientSession within a cog
-#def __init__(self, bot, ...):
-#    ...
-#    self.session = aiohttp.ClientSession(loop=bot.loop)
-#    ...
-#    # then use self.session.get similar to above
-
-#https://github.com/Rapptz/discord.py/issues/1279
-
-        else:
         # What to do when no attachment is sent with the file: Search prev. messages for a file, also for links.
         if not ctx.message.attachments:
             foundImage = False
@@ -113,9 +79,9 @@ class recolour(commands.Cog, name='useful'):
             data = await ctx.message.attachments[0].read()
 
         img = Image.open(io.BytesIO(data))
-
         img = img.convert('RGBA') # In case image (e.g. JPG) is in 'RGB' or else mode.
 
+        for i in range(0, img.size[0]): # process all pixels
             for j in range(0, img.size[1]):
                 pixelData = img.getpixel((i, j))
                 newColour = tuple(abs(pixelData[n] + round(additionColours[colour][n] * strength)) for n in range(4))
@@ -129,10 +95,12 @@ class recolour(commands.Cog, name='useful'):
         await ctx.send(f'{colour}@{int(strength * 100)}%', file=f)
 
 
-    #@recolour.error
-    #async def recolour_error(self, ctx, error):
-    #    print(error)
-    #    await ctx.send(error)
+    @recolour.error
+    async def recolour_error(self, ctx, error):
+        if isinstance(error, commands.errors.BadArgument):
+            await ctx.send('`ERROR: Invalid Syntax`')
+        elif isinstance(error, discord.errors.DiscordException):
+            await ctx.send('`ERROR: Invalid Colour`')
 
 
 def setup(client):
