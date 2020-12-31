@@ -14,6 +14,7 @@ class recolour(commands.Cog, name='useful'):
     def isImage(self, data):
         try:
             Image.open(data)
+            Image.open(io.BytesIO(data))
         except IOError:
             return False
         return True
@@ -24,6 +25,8 @@ class recolour(commands.Cog, name='useful'):
     async def recolour(self, ctx, colour='green', strength:float=100):
         '''
         call with image attached. colour can be one of [red, orange, yellow, green, blue, purple], or just the first letter of any.
+        Call with image attached. colour can be one of [red, orange, yellow, green, blue, purple], or just the first letter of any.
+        If no image is attached, bot will search recent messages for the most recent image or image link.
         '''
         
         colour = colour.lower()
@@ -82,11 +85,37 @@ class recolour(commands.Cog, name='useful'):
 #https://github.com/Rapptz/discord.py/issues/1279
 
         else:
+        # What to do when no attachment is sent with the file: Search prev. messages for a file, also for links.
+        if not ctx.message.attachments:
+            foundImage = False
+            msgLimit = 200
+            regex = re.compile(r'https?:/.*\.(png|jpg|jpeg|gif|jfif|bmp)')
+            
+            searchingMessage = await ctx.send(f'Searching for image in last {msgLimit} messages…')
+            async with aiohttp.ClientSession() as session:
+                async for msg in ctx.channel.history(limit=msgLimit): # regex to check for images in links
+                    if msg.attachments:
+                        data = await msg.attachments[0].read()
+                        if not self.isImage(data): continue
+                        foundImage = True
+                        break
+
+                    m = regex.search(msg.content)
+                    if m:
+                        async with session.get(m.group()) as resp:
+                            data = await resp.read()
+                            if not self.isImage(data): continue
+                            foundImage = True
+                            break
+            await searchingMessage.edit(content=f'Searching for Image in last {msgLimit} messages…{"No "* False * foundImage}Image {"successfully " * foundImage}found in last {msgLimit} messages.')
+
+        else: # If there is an attachment, just read the data from it.
             data = await ctx.message.attachments[0].read()
 
         img = Image.open(io.BytesIO(data))
 
-        for i in range(0, img.size[0]): # process all pixels
+        img = img.convert('RGBA') # In case image (e.g. JPG) is in 'RGB' or else mode.
+
             for j in range(0, img.size[1]):
                 pixelData = img.getpixel((i, j))
                 newColour = tuple(abs(pixelData[n] + round(additionColours[colour][n] * strength)) for n in range(4))
