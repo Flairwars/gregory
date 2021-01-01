@@ -37,9 +37,8 @@ class sql_class():
             self.conn.rollback()
             print(str(exc))
 
-    def toggle_vote(self, message_id, channel_id, guild_id, emote_id, user_id):
+    def toggle_vote(self, poll_id, guild_id, emote_id, user_id):
         """
-        checks whether the poll exists
         checks whether user exists
         adds user
         check if user has voted 
@@ -48,7 +47,7 @@ class sql_class():
         input: <str> message_id, <str> channel_id, <str> guild_id, <str> emote_id, <str> user_id
         output: None, True, False
         """
-        get_poll = "SELECT id FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
+        
         get_user = "SELECT id FROM users WHERE id = %s AND guild_id = %s"
         add_user = "INSERT INTO users (`id`, `guild_id`) VALUES (%s,%s)"
 
@@ -56,45 +55,53 @@ class sql_class():
         add_vote = "INSERT INTO votes (`poll_id`, `user_id`, `emote_id`) VALUES (%s,%s,%s)"
         delete_vote = "DELETE FROM votes WHERE poll_id = %s AND user_id = %s AND emote_id = %s"
 
+        # check if user exists
+        if not self.cursor.execute(get_user, (user_id, guild_id)):
+            try:
+                self.cursor.execute(add_user, (user_id, guild_id))
+                self.conn.commit()
+            except  Exception as exc:
+                self.conn.rollback()
+                print(str(exc))
+                return None
+
+        # checks if person has voted
+        self.cursor.execute(get_vote, (poll_id, user_id, emote_id))
+        voted = self.cursor.fetchall()
+        if not voted:
+            # adds vote
+            try:
+                self.cursor.execute(add_vote, (poll_id, user_id, emote_id))
+                self.conn.commit()
+                return True
+            except  Exception as exc:
+                    self.conn.rollback()
+                    print(str(exc))
+        else:
+            # removes vote
+            try:
+                self.cursor.execute(delete_vote, (poll_id, user_id, emote_id))
+                self.conn.commit()
+                return False
+            except  Exception as exc:
+                    self.conn.rollback()
+                    print(str(exc))
+        return None
+    
+    def get_poll(self, message_id, channel_id, guild_id):
+        '''
+        gets the poll id from the polls db
+        input: <str> message_id, <str> channel_id, <str> guild_id
+        output: <int> id
+        '''
+        get_poll = "SELECT id FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
+
         self.conn.ping(reconnect=True)
         # get relevent poll
         self.cursor.execute(get_poll, (message_id, channel_id, guild_id))
         poll_id = self.cursor.fetchall()
+        return poll_id[0][0]
 
-        if poll_id:
-            # check if user exists
-            if not self.cursor.execute(get_user, (user_id, guild_id)):
-                try:
-                    self.cursor.execute(add_user, (user_id, guild_id))
-                    self.conn.commit()
-                except  Exception as exc:
-                    self.conn.rollback()
-                    print(str(exc))
-                    return None
-
-            # checks if person has voted
-            self.cursor.execute(get_vote, (poll_id[0][0], user_id, emote_id))
-            voted = self.cursor.fetchall()
-            if not voted:
-                # adds vote
-                try:
-                    self.cursor.execute(add_vote, (poll_id[0][0], user_id, emote_id))
-                    self.conn.commit()
-                    return True
-                except  Exception as exc:
-                        self.conn.rollback()
-                        print(str(exc))
-            else:
-                # removes vote
-                try:
-                    self.cursor.execute(delete_vote, (poll_id[0][0], user_id, emote_id))
-                    self.conn.commit()
-                    return False
-                except  Exception as exc:
-                        self.conn.rollback()
-                        print(str(exc))
-        return None
-    
     def check_polls(self, user_id):
         '''
         gets poll id from all the polls that someone as voted on

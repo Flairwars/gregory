@@ -1,3 +1,4 @@
+import pathlib
 import re
 import discord
 import datetime
@@ -7,12 +8,13 @@ from converter.datetimeCalc import datetimeCal
 from sql.poll import sql_class
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-class poll(commands.Cog, name='Polls'):
-    '''
+class poll(commands.Cog, name='poll'):
+    """
     Too Much Poll
-    '''
+    """
     def __init__(self, client):
         self.client = client
+        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
         self.pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
         self.reg = re.compile('({.+})\ *(\[[^\n\r\[\]]+\] *)+')
         self.sched = AsyncIOScheduler()
@@ -43,9 +45,9 @@ class poll(commands.Cog, name='Polls'):
                 await self._poll2_end(poll_id)
              
     async def _poll2_end(self, poll_id):
-        '''
+        """
         ends
-        '''
+        """
         sql = sql_class()
         poll_info, votes = sql.get_poll_info(str(poll_id))
 
@@ -85,26 +87,24 @@ class poll(commands.Cog, name='Polls'):
         channel_id = str(payload.channel_id)
         guild_id = str(payload.guild_id)
         user_id = str(payload.user_id)
-        
-        if payload.emoji.name not in self.pollsigns:
-            return
 
-        # if it has an id, its not one of the abcdef emotes
-        if payload.emoji.name in self.pollsigns:
-            emote_id = str(ord(payload.emoji.name))
-            sql = sql_class()
-            toggle = sql.toggle_vote(message_id, channel_id, guild_id, emote_id, user_id)
+        sql = sql_class()
+        poll_id = sql.get_poll(message_id,channel_id,guild_id)
+        if poll_id:
+            # if it has an id, its not one of the abcdef emotes
+            if payload.emoji.name in self.pollsigns:
+                emote_id = str(ord(payload.emoji.name))
+                sql.toggle_vote(poll_id,guild_id,emote_id,user_id)
 
-
-        channel = self.client.get_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-        await message.remove_reaction(payload.emoji, payload.member)
+            channel = self.client.get_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
+            await message.remove_reaction(payload.emoji, payload.member)
 
     @commands.command(aliases=['poll2electricboogaloo','pollv2'])
     @commands.has_permissions(administrator=True) 
     async def poll2(self, ctx, *, args):
         """
-        : Fancy poll. Admin only
+        Fancy poll. Admin only
         """
         time = None
         # checks message against regex to see if it matches
@@ -171,9 +171,9 @@ class poll(commands.Cog, name='Polls'):
         
     @commands.command(aliases=['checkvotes'])
     async def check_votes(self, ctx):
-        '''
-        : allows the user to check who they voted for
-        '''
+        """
+        allows the user to check who they voted for
+        """
         sql = sql_class()
         polls = sql.check_polls(str(ctx.author.id))
         # removes duplicate polls from data
@@ -197,10 +197,10 @@ class poll(commands.Cog, name='Polls'):
     
     @commands.command(aliases=['endpoll', 'stoppoll','stopoll','stop_poll'])
     @commands.has_permissions(administrator=True) 
-    async def end_poll(self, ctx, message_id, dm=False):
-        '''
-        : manually ends a poll. optionally can make it output to channel or dms
-        '''
+    async def end_poll(self, ctx, message_id, dm:bool):
+        """
+        manually ends a poll. optionally can make it output to channel or dms
+        """
         channel_id = str(ctx.channel.id)
         guild_id = str(ctx.guild.id)
         sql = sql_class()
@@ -281,9 +281,9 @@ class poll(commands.Cog, name='Polls'):
     @commands.command(aliases=['deletepoll','remove_poll', 'removepoll'])
     @commands.has_permissions(administrator=True) 
     async def delete_poll(self, ctx, message_id):
-        '''
-        : deletes poll
-        '''
+        """
+        deletes poll
+        """
         channel_id = str(ctx.channel.id)
         guild_id = str(ctx.guild.id)
         sql = sql_class()
@@ -306,11 +306,11 @@ class poll(commands.Cog, name='Polls'):
 
     @commands.command(aliases=['raidpoll','rp'])
     async def raid_poll(self, ctx, *,title='Raid Times'):
-        '''
-        : creates a poll for raiding
-        '''
+        """
+        creates a poll for raiding
+        """
         emotes = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰"]
-        description = '''
+        description = """
         🇦 1:00\n
         🇧 2:00\n
         🇨 3:00\n
@@ -322,7 +322,7 @@ class poll(commands.Cog, name='Polls'):
         🇮 9:00\n
         🇯 10:00\n
         🇰 12:00\n
-        '''
+        """
         embed = discord.Embed(title=f'{title} AM',color=discord.Color.green(),description=description)
         msg = await ctx.send(embed=embed)
         embed = discord.Embed(title=f'{title} PM',color=discord.Color.green(),description=description)
@@ -334,9 +334,9 @@ class poll(commands.Cog, name='Polls'):
 
     @commands.command()
     async def poll(self, ctx, *, args):
-        '''
-        : normal poll
-        '''
+        """
+        normal poll
+        """
         if not self.reg.match(args):
             await ctx.message.add_reaction('👍')
             await ctx.message.add_reaction('👎')
