@@ -197,7 +197,7 @@ class poll(commands.Cog, name='poll'):
     
     @commands.command(aliases=['endpoll', 'stoppoll','stopoll','stop_poll'])
     @commands.has_permissions(administrator=True) 
-    async def end_poll(self, ctx, message_id, dm=False):
+    async def end_poll(self, ctx, message_id, dm:bool):
         """
         manually ends a poll. optionally can make it output to channel or dms
         """
