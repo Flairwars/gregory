@@ -91,6 +91,8 @@ class poll(commands.Cog, name='poll'):
         if payload.emoji.name not in self.pollsigns:
             return
 
+        toggle = False
+
         # if it has an id, its not one of the abcdef emotes
         if payload.emoji.name in self.pollsigns:
             emote_id = str(ord(payload.emoji.name))
@@ -100,7 +102,8 @@ class poll(commands.Cog, name='poll'):
 
         channel = self.client.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
-        await message.remove_reaction(payload.emoji, payload.member)
+        if toggle:
+            await message.remove_reaction(payload.emoji, payload.member)
 
     @commands.command(aliases=['poll2electricboogaloo','pollv2'])
     @commands.has_permissions(administrator=True) 
