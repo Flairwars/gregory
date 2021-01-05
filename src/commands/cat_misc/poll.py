@@ -1,7 +1,4 @@
-import pathlib
-import re
-import discord
-import datetime
+import pathlib, re, discord, datetime
 from asyncio import sleep
 from discord.ext import commands
 from converter.datetimeCalc import datetimeCal
@@ -10,26 +7,36 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 class poll(commands.Cog, name='poll'):
     """
-    Too Much Poll
+    Poll commands. all types
     """
     def __init__(self, client):
+        #setup
         self.client = client
         self.category = pathlib.Path(__file__).parent.absolute().name[4:]
+        self.sql = sql_class()
+
+        # emotes
         self.pollsigns = ["🇦","🇧","🇨","🇩","🇪","🇫","🇬","🇭","🇮","🇯","🇰","🇱","🇲","🇳","🇴","🇵","🇶","🇷","🇸","🇹","🇺","🇻","🇼","🇽","🇾","🇿"]
+        
+        # regex for checking for complex poll
         self.reg = re.compile('({.+})\ *(\[[^\n\r\[\]]+\] *)+')
+
+        # starts up the schedular and all the tasks for all commands on timer
         self.sched = AsyncIOScheduler()
         self.sched.start()
 
-        client.loop.create_task(self.async_init())
+        client.loop.create_task(self._async_init())
+
+        # caching of reacently accessed polls
+        self.poll_locations = {} #contains {(message_id,channel_id,guild_id):poll_id}
  
-    async def async_init(self):
+    async def _async_init(self):
         """
-        this loads up all the command on a timer
+        loads up all the tasks on a timer
         """
         await self.client.wait_until_ready()
 
-        sql = sql_class()
-        polls = sql.get_polls()
+        polls = self.sql.get_polls()
         now = datetime.datetime.now()
         for poll in polls:
             poll_id = str(poll[0])
@@ -39,17 +46,16 @@ class poll(commands.Cog, name='poll'):
                 pass
             elif poll_datetime > now:
                 # if the poll hasnt passed, it adds it to the schedule
-                self.sched.add_job(self._poll2_end, 'date', run_date=poll_datetime, args=[poll_id],id=poll_id)
+                self.sched.add_job(self._end_poll, 'date', run_date=poll_datetime, args=[poll_id],id=poll_id)
             else:
                 # the poll has passed. it ends the poll
-                await self._poll2_end(poll_id)
+                await self._end_poll(poll_id)
              
-    async def _poll2_end(self, poll_id):
+    async def _end_poll(self, poll_id):
         """
-        ends
+        code that executes when a timed poll finishes. sends poll results into channel where poll was made
         """
-        sql = sql_class()
-        poll_info, votes = sql.get_poll_info(str(poll_id))
+        poll_info, votes = self.sql.get_poll_info(str(poll_id))
 
         description = ''
         if len(votes) == 0:
@@ -69,11 +75,54 @@ class poll(commands.Cog, name='poll'):
                 else:
                     description +=f' votes for {key} \n\n'
         
-        sql.remove_poll(poll_id)
+        self.sql.remove_poll(poll_id)
 
         embed = discord.Embed(title=poll_info[1],color=discord.Color.green(),description=description)
         channel = self.client.get_channel(int(poll_info[0]))
+
         await channel.send(embed=embed)
+
+    def _delete_poll(self, message_id, channel_id, guild_id):
+        poll_id, poll_date = self.sql.location_get_poll(message_id, channel_id, guild_id)
+        if poll_id:
+            poll_id = str(poll_id)
+            if poll_date:
+                self.sched.remove_job(poll_id)
+            self.sql.remove_poll(poll_id)
+            return True
+        else:
+            return False
+    
+    def _update_guilds(self):
+        guilds = self.client.guilds
+        db_guilds = self.sql.get_guilds()
+
+        for guild in guilds:
+            guildId = str(guild.id)
+            found = False
+            for db_guild in db_guilds:
+                db_guildId = db_guild[0]
+                if guildId == db_guildId:
+                    #print(db_roleId, roleName)
+                    found = True
+                
+            if found == False:
+                self.sql.add_guild(guildId)
+        
+        # searching for old guilds that are deleted
+        for db_guild in db_guilds:
+            db_guildId = db_guild[0]
+
+            found = False
+            for guild in guilds:
+                guildId = str(guild.id)
+                
+                if guildId == db_guildId:
+                    found = True
+                
+            if found == False:
+                #self.sql.remove_guild(db_guildId)
+                pass
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -88,17 +137,32 @@ class poll(commands.Cog, name='poll'):
         guild_id = str(payload.guild_id)
         user_id = str(payload.user_id)
 
-        sql = sql_class()
-        poll_id = sql.get_poll(message_id,channel_id,guild_id)
+        # checks whether is has reacent seen this poll
+        if (message_id,channel_id,guild_id) in self.poll_locations.keys():
+            poll_id = self.poll_locations[(message_id,channel_id,guild_id)]
+        else:
+            poll_id = self.sql.get_poll(message_id,channel_id,guild_id)
+        
         if poll_id:
+            self.poll_locations[(message_id,channel_id,guild_id)] = poll_id
             # if it has an id, its not one of the abcdef emotes
-            if payload.emoji.name in self.pollsigns:
+            if payload.emoji.name in self.pollsigns:# otherwise cant ord and crashes for custom emotes
                 emote_id = str(ord(payload.emoji.name))
-                sql.toggle_vote(poll_id,guild_id,emote_id,user_id)
-
+                self.sql.toggle_vote(poll_id,guild_id,emote_id,user_id)
+            
             channel = self.client.get_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)
+
             await message.remove_reaction(payload.emoji, payload.member)
+
+    @commands.Cog.listener()
+    async def on_raw_message_delete(self, payload):
+        if payload.cached_message.author == self.client.user:
+            message_id = str(payload.message_id)
+            channel_id = str(payload.channel_id)
+            guild_id = str(payload.guild_id)
+
+            self._delete_poll(message_id, channel_id, guild_id)
 
     @commands.command(aliases=['poll2electricboogaloo','pollv2'])
     @commands.has_permissions(administrator=True) 
@@ -107,6 +171,7 @@ class poll(commands.Cog, name='poll'):
         Fancy poll. Admin only
         """
         time = None
+        footer = ''
         # checks message against regex to see if it matches
         if not self.reg.match(args):
             # check if it has time at start of command
@@ -148,34 +213,42 @@ class poll(commands.Cog, name='poll'):
 
         if time:
             strtime = time.strftime("%m/%d/%Y, %H:%M:%S")
-            description += f'ends on `{strtime}`\n'
+            footer += f'time: {strtime}\n'
         
         embed = discord.Embed(title=name,color=discord.Color.green(),description=description)
+        embed.set_footer(text=footer)
         message = await ctx.send(embed=embed)
 
         # adds a message id to the end of the poll
-        description += f'id: *`{message.id}`*'
-        embed = discord.Embed(title=name,color=discord.Color.green(),description=description)
+        footer += f'id: {message.id}'
+        embed.set_footer(text=footer)
         await message.edit(embed=embed)
         
         #add reactions
         for count in range(len(args)):
             await message.add_reaction(self.pollsigns[count])
 
-        sql = sql_class()
         self._update_guilds()
 
-        poll_id = sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, self.pollsigns, args)
+        poll_id = self.sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, self.pollsigns, args)
         if time:
-            self.sched.add_job(self._poll2_end, 'date', run_date=time, args=[poll_id],id=poll_id)
+            self.sched.add_job(self._end_poll, 'date', run_date=time, args=[poll_id],id=poll_id)
+
+    @poll2.error
+    async def poll2_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
+            await ctx.send('`ERROR Missing Required Argument: make sure it is .poll2 <time ddhhmmss> {title} [args]`')
+        else:
+            print(error)
+
         
     @commands.command(aliases=['checkvotes'])
     async def check_votes(self, ctx):
         """
         allows the user to check who they voted for
         """
-        sql = sql_class()
-        polls = sql.check_polls(str(ctx.author.id))
+        
+        polls = self.sql.check_polls(str(ctx.author.id))
         # removes duplicate polls from data
         polls = list(dict.fromkeys(polls))
         await ctx.message.delete()
@@ -186,7 +259,7 @@ class poll(commands.Cog, name='poll'):
             await msg.delete()
         else:
             for poll in polls:
-                votes = sql.check_votes(str(ctx.author.id), poll[0])
+                votes = self.sql.check_votes(str(ctx.author.id), poll[0])
 
                 description = 'You have voted: \n\n'
                 for vote in votes:
@@ -194,7 +267,14 @@ class poll(commands.Cog, name='poll'):
                 embed = discord.Embed(title=f'on poll: {votes[0][1]}',color=discord.Color.green(),description=description)
                 await ctx.author.send(embed=embed)
     
-    
+    @check_votes.error
+    async def check_votes_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
+            await ctx.send('`ERROR Missing Required Argument: make sure it is .checkvotes`')
+        else:
+            print(error)
+
+
     @commands.command(aliases=['endpoll', 'stoppoll','stopoll','stop_poll'])
     @commands.has_permissions(administrator=True) 
     async def end_poll(self, ctx, message_id, dm:bool):
@@ -203,8 +283,8 @@ class poll(commands.Cog, name='poll'):
         """
         channel_id = str(ctx.channel.id)
         guild_id = str(ctx.guild.id)
-        sql = sql_class()
-        poll_info = sql.location_get_poll(message_id, channel_id, guild_id)
+        
+        poll_info = self.sql.location_get_poll(message_id, channel_id, guild_id)
 
         if not poll_info:
             await ctx.send('`no poll detected please check you are running it in the same channel as the poll`')
@@ -218,7 +298,7 @@ class poll(commands.Cog, name='poll'):
         if poll_date:
             self.sched.remove_job(poll_id)
         
-        poll_info, votes = sql.get_poll_info(poll_id)
+        poll_info, votes = self.sql.get_poll_info(poll_id)
 
         description = ''
         if len(votes) == 0:
@@ -238,7 +318,7 @@ class poll(commands.Cog, name='poll'):
                 else:
                     description +=f' votes for {key} \n\n'
         
-        sql.remove_poll(poll_id)
+        self.sql.remove_poll(poll_id)
         embed = discord.Embed(title=poll_info[1],color=discord.Color.green(),description=description)
         
         if dm == True:
@@ -246,37 +326,13 @@ class poll(commands.Cog, name='poll'):
         else:
             await ctx.author.send(embed=embed)
 
-    def _update_guilds(self):
-        sql = sql_class()
+    @end_poll.error
+    async def end_poll_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
+            await ctx.send('`ERROR Missing Required Argument: make sure it is .deletepoll <message id> <send to dms True/False>`')
+        else:
+            print(error)
 
-        guilds = self.client.guilds
-        db_guilds = sql.get_guilds()
-
-        for guild in guilds:
-            guildId = str(guild.id)
-            found = False
-            for db_guild in db_guilds:
-                db_guildId = db_guild[0]
-                if guildId == db_guildId:
-                    #print(db_roleId, roleName)
-                    found = True
-                
-            if found == False:
-                sql.add_guild(guildId)
-        
-        # searching for old guilds that are deleted
-        for db_guild in db_guilds:
-            db_guildId = db_guild[0]
-
-            found = False
-            for guild in guilds:
-                guildId = str(guild.id)
-                
-                if guildId == db_guildId:
-                    found = True
-                
-            if found == False:
-                sql.remove_guild(db_guildId)
     
     @commands.command(aliases=['deletepoll','remove_poll', 'removepoll'])
     @commands.has_permissions(administrator=True) 
@@ -286,23 +342,20 @@ class poll(commands.Cog, name='poll'):
         """
         channel_id = str(ctx.channel.id)
         guild_id = str(ctx.guild.id)
-        sql = sql_class()
-        poll_info = sql.location_get_poll(message_id, channel_id, guild_id)
-
-        if not poll_info:
-            await ctx.send('`no poll detected please check you are running it in the same channel as the poll`')
-            return
-        else:
-            poll_info = poll_info[0]
-
-        poll_id = str(poll_info[0])
-        poll_date = poll_info[1]
-
-        if poll_date:
-            self.sched.remove_job(poll_id)
         
-        sql.remove_poll(poll_id)
-        await ctx.send('deleted poll')
+        deleted = self._delete_poll(message_id, channel_id, guild_id)
+        if deleted == True:
+            await ctx.send('`deleted poll`')
+        else:
+            await ctx.send('`no poll detected please check you are running it in the same channel as the poll`')
+
+    @delete_poll.error
+    async def delete_poll_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
+            await ctx.send('`ERROR Missing Required Argument: make sure it is .deletepoll <message id>`')
+        else:
+            print(error)
+
 
     @commands.command(aliases=['raidpoll','rp'])
     async def raid_poll(self, ctx, *,title='Raid Times'):
@@ -331,6 +384,7 @@ class poll(commands.Cog, name='poll'):
         for emote in emotes:
             await msg.add_reaction(emote)
             await msg2.add_reaction(emote)
+
 
     @commands.command()
     async def poll(self, ctx, *, args= ' '):
@@ -369,39 +423,11 @@ class poll(commands.Cog, name='poll'):
         #add reactions
         for count in range(len(args)):
             await msg.add_reaction(self.pollsigns[count])
-        
-    @poll2.error
-    async def poll2_error(self, ctx, error):
-        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
-            await ctx.send('`ERROR Missing Required Argument: make sure it is .poll2 <time ddhhmmss> {title} [args]`')
-        else:
-            print(error)
     
     @poll.error
-    async def poll2_error(self, ctx, error):
+    async def poll_error(self, ctx, error):
         if isinstance(error, commands.errors.MissingRequiredArgument):
             await ctx.send('`ERROR Missing Required Argument: make sure it is .poll {title} [args]`')
-        else:
-            print(error)
-    
-    @check_votes.error
-    async def check_votes_error(self, ctx, error):
-        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
-            await ctx.send('`ERROR Missing Required Argument: make sure it is .checkvotes`')
-        else:
-            print(error)
-    
-    @end_poll.error
-    async def end_poll_error(self, ctx, error):
-        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
-            await ctx.send('`ERROR Missing Required Argument: make sure it is .deletepoll <message id> (True if it should output to channel)`')
-        else:
-            print(error)
-
-    @delete_poll.error
-    async def delete_poll_error(self, ctx, error):
-        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
-            await ctx.send('`ERROR Missing Required Argument: make sure it is .deletepoll <message id>`')
         else:
             print(error)
 
