@@ -71,7 +71,6 @@ class roles(commands.Cog, name='roles'):
         else:
             print(error)
 
-
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         """
@@ -166,7 +165,8 @@ class roles(commands.Cog, name='roles'):
                     found = True
                 
             if found == False:
-                sql.remove_guild(db_guildId)
+                #sql.remove_guild(db_guildId)
+                pass
 
 def setup(client):
     client.add_cog(roles(client))
