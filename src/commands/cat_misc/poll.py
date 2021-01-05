@@ -333,7 +333,7 @@ class poll(commands.Cog, name='poll'):
             await msg2.add_reaction(emote)
 
     @commands.command()
-    async def poll(self, ctx, *, args):
+    async def poll(self, ctx, *, args= ' '):
         """
         normal poll
         """
