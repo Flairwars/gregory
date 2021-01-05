@@ -100,7 +100,10 @@ class sql_class():
         # get relevent poll
         self.cursor.execute(get_poll, (message_id, channel_id, guild_id))
         poll_id = self.cursor.fetchall()
-        return poll_id[0][0]
+
+        if poll_id:
+            return poll_id[0][0]
+        return None
 
     def check_polls(self, user_id):
         '''
@@ -213,7 +216,10 @@ class sql_class():
         self.conn.ping(reconnect=True)
         self.cursor.execute(sql, (message_id, channel_id, guild_id))
         poll_id = self.cursor.fetchall()
-        return poll_id
+        
+        if poll_id:
+            return poll_id[0][0], poll_id[0][1]
+        return None, None
 
 ###################################################
 
