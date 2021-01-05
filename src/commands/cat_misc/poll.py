@@ -87,22 +87,17 @@ class poll(commands.Cog, name='poll'):
         channel_id = str(payload.channel_id)
         guild_id = str(payload.guild_id)
         user_id = str(payload.user_id)
-        
-        if payload.emoji.name not in self.pollsigns:
-            return
 
-        toggle = False
+        sql = sql_class()
+        poll_id = sql.get_poll(message_id,channel_id,guild_id)
+        if poll_id:
+            # if it has an id, its not one of the abcdef emotes
+            if payload.emoji.name in self.pollsigns:
+                emote_id = str(ord(payload.emoji.name))
+                sql.toggle_vote(poll_id,guild_id,emote_id,user_id)
 
-        # if it has an id, its not one of the abcdef emotes
-        if payload.emoji.name in self.pollsigns:
-            emote_id = str(ord(payload.emoji.name))
-            sql = sql_class()
-            toggle = sql.toggle_vote(message_id, channel_id, guild_id, emote_id, user_id)
-
-
-        channel = self.client.get_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-        if toggle:
+            channel = self.client.get_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
             await message.remove_reaction(payload.emoji, payload.member)
 
     @commands.command(aliases=['poll2electricboogaloo','pollv2'])
@@ -202,7 +197,7 @@ class poll(commands.Cog, name='poll'):
     
     @commands.command(aliases=['endpoll', 'stoppoll','stopoll','stop_poll'])
     @commands.has_permissions(administrator=True) 
-    async def end_poll(self, ctx, message_id, dm=False):
+    async def end_poll(self, ctx, message_id, dm:bool):
         """
         manually ends a poll. optionally can make it output to channel or dms
         """
