@@ -245,8 +245,8 @@ class poll(commands.Cog, name='poll'):
             print(error)
 
         
-    @commands.command(aliases=['checkvotes'])
-    async def check_votes(self, ctx):
+    @commands.command(aliases=['checkvote'])
+    async def checkvotes(self, ctx):
         """
         allows the user to check who they voted for
         it will dm users with every poll they are currently voting on
@@ -271,7 +271,7 @@ class poll(commands.Cog, name='poll'):
                 embed = discord.Embed(title=f'on poll: {votes[0][1]}',color=discord.Color.green(),description=description)
                 await ctx.author.send(embed=embed)
     
-    @check_votes.error
+    @checkvotes.error
     async def check_votes_error(self, ctx, error):
         if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
             await ctx.send('`ERROR Missing Required Argument: make sure it is .checkvotes`')
@@ -279,9 +279,9 @@ class poll(commands.Cog, name='poll'):
             print(error)
 
 
-    @commands.command(aliases=['endpoll', 'stoppoll','stopoll','stop_poll'])
+    @commands.command(aliases=['stoppoll','stopoll','stop_poll'])
     @commands.has_permissions(administrator=True) 
-    async def end_poll(self, ctx, message_id:str, dm:bool):
+    async def endpoll(self, ctx, message_id:str, dm:bool):
         """
         Can be used to end anonymous polls (poll2)
         needs to be ran in the same channel as the poll
@@ -332,17 +332,17 @@ class poll(commands.Cog, name='poll'):
         else:
             await ctx.author.send(embed=embed)
 
-    @end_poll.error
-    async def end_poll_error(self, ctx, error):
+    @endpoll.error
+    async def endpoll_error(self, ctx, error):
         if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
             await ctx.send('`ERROR Missing Required Argument: make sure it is .deletepoll <message id> <send to dms True/False>`')
         else:
             print(error)
 
     
-    @commands.command(aliases=['deletepoll','remove_poll', 'removepoll'])
+    @commands.command(aliases=['removepoll'])
     @commands.has_permissions(administrator=True) 
-    async def delete_poll(self, ctx, message_id):
+    async def deletepoll(self, ctx, message_id):
         """
         Can be used to delete anonymous polls (poll2)
         needs to be ran in the same channel as the poll
@@ -356,7 +356,7 @@ class poll(commands.Cog, name='poll'):
         else:
             await ctx.send('`no poll detected please check you are running it in the same channel as the poll`')
 
-    @delete_poll.error
+    @deletepoll.error
     async def delete_poll_error(self, ctx, error):
         if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
             await ctx.send('`ERROR Missing Required Argument: make sure it is .deletepoll <message id>`')
@@ -364,8 +364,8 @@ class poll(commands.Cog, name='poll'):
             print(error)
 
 
-    @commands.command(aliases=['raidpoll','rp'])
-    async def raid_poll(self, ctx, *,title='Raid Times'):
+    @commands.command(aliases=['rp'])
+    async def raidpoll(self, ctx, *,title='Raid Times'):
         """
         creates a poll for raiding
         """
