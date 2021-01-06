@@ -7,7 +7,7 @@ import pathlib
 
 class recolour(commands.Cog, name='recolour'):
     """
-    Gregory is a dank memer :sunglasses:
+    Recolor cog
     """
     def __init__(self, client):
         self.client = client
