@@ -168,7 +168,9 @@ class poll(commands.Cog, name='poll'):
     @commands.has_permissions(administrator=True) 
     async def poll2(self, ctx, *, args):
         """
-        Fancy poll. Admin only
+        creates anonymous poll with/without a timed ending
+        .poll2 <optional time until end> {the title of the poll} [name of options]
+        WARNING: wait until all reactions are added by the bot before reacting
         """
         time = None
         footer = ''
@@ -218,7 +220,7 @@ class poll(commands.Cog, name='poll'):
         embed = discord.Embed(title=name,color=discord.Color.green(),description=description)
         embed.set_footer(text=footer)
         message = await ctx.send(embed=embed)
-
+        message2 = await ctx.send('`please wait until all reactions are added before reacting`')
         # adds a message id to the end of the poll
         footer += f'id: {message.id}'
         embed.set_footer(text=footer)
@@ -228,6 +230,7 @@ class poll(commands.Cog, name='poll'):
         for count in range(len(args)):
             await message.add_reaction(self.pollsigns[count])
 
+        await message2.delete()
         self._update_guilds()
 
         poll_id = self.sql.add_poll(str(message.id), str(message.channel.id), str(message.author.guild.id), name, time, self.pollsigns, args)
@@ -246,6 +249,7 @@ class poll(commands.Cog, name='poll'):
     async def check_votes(self, ctx):
         """
         allows the user to check who they voted for
+        it will dm users with every poll they are currently voting on
         """
         
         polls = self.sql.check_polls(str(ctx.author.id))
@@ -277,9 +281,11 @@ class poll(commands.Cog, name='poll'):
 
     @commands.command(aliases=['endpoll', 'stoppoll','stopoll','stop_poll'])
     @commands.has_permissions(administrator=True) 
-    async def end_poll(self, ctx, message_id, dm:bool):
+    async def end_poll(self, ctx, message_id:str, dm:bool):
         """
-        manually ends a poll. optionally can make it output to channel or dms
+        Can be used to end anonymous polls (poll2)
+        needs to be ran in the same channel as the poll
+        True = send results to dms, False = sends results to the channel
         """
         channel_id = str(ctx.channel.id)
         guild_id = str(ctx.guild.id)
@@ -321,7 +327,7 @@ class poll(commands.Cog, name='poll'):
         self.sql.remove_poll(poll_id)
         embed = discord.Embed(title=poll_info[1],color=discord.Color.green(),description=description)
         
-        if dm == True:
+        if dm == False:
             await ctx.send(embed=embed)
         else:
             await ctx.author.send(embed=embed)
@@ -338,7 +344,8 @@ class poll(commands.Cog, name='poll'):
     @commands.has_permissions(administrator=True) 
     async def delete_poll(self, ctx, message_id):
         """
-        deletes poll
+        Can be used to delete anonymous polls (poll2)
+        needs to be ran in the same channel as the poll
         """
         channel_id = str(ctx.channel.id)
         guild_id = str(ctx.guild.id)
@@ -390,6 +397,9 @@ class poll(commands.Cog, name='poll'):
     async def poll(self, ctx, *, args= ' '):
         """
         normal poll
+        .poll some thing 
+        or
+        .poll {title} [option] [option]
         """
         if not self.reg.match(args):
             await ctx.message.add_reaction('👍')
