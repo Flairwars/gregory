@@ -4,6 +4,8 @@ from discord.ext import commands, tasks
 from sql.count import sql_class
 from reddit.count import reddit_class
 
+from functools import partial
+
 class count(commands.Cog, name='count'):
     """
     Count command shiz
@@ -141,7 +143,9 @@ class count(commands.Cog, name='count'):
 
         # get reddit posts from sub
         reddit = reddit_class()
-        posts = reddit.get_125_hotposts(sub[0])
+
+        fn = partial(reddit.get_125_hotposts, sub[0])
+        posts = await self.client.loop.run_in_executor(None, fn)
 
         # Include only the author names.
         posts = list(map(lambda a: a.author.name, posts))
