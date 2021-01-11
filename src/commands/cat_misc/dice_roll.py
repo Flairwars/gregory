@@ -7,7 +7,6 @@ class dice_roll(commands.Cog, name='dice_roll'):
     def __init__(self, client):
         self.client = client
         self.category = pathlib.Path(__file__).parent.absolute().name[4:]
-    
 
     @commands.command(aliases=['roll'])
     async def diceroll(self, ctx, *args):
@@ -29,7 +28,7 @@ class dice_roll(commands.Cog, name='dice_roll'):
                 description += f'dice: {dice}, count: 1\n{roll}\nTotal: {roll}\n\n'
 
             else:
-                dice = int(arg[index+1:])
+                dice = int(arg[index + 1:])
                 count = arg[:index]
 
                 if count == '':
@@ -43,12 +42,10 @@ class dice_roll(commands.Cog, name='dice_roll'):
                     roll = randint(1, dice)
                     total += roll
                     description += f'{roll}, '
-                description = description[:-2] # remove trailing ', '
+                description = description[:-2]  # remove trailing ', '
                 description += f'\nTotal: {total}\n\n'
-        
+
         await ctx.send(description)
-
-
 
 
 def setup(client):

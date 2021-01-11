@@ -1,8 +1,9 @@
-
 import discord
 from discord.ext import commands
 import datetime
-class datetimeCal(commands.Converter):
+
+
+class datetimeCalc(commands.Converter):
     async def convert(self, ctx, argument):
         timeLetters = ['W','D','h','m','s']
 
