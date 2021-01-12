@@ -4,6 +4,7 @@ from random import randint
 from discord.ext import commands
 respects_id = 587602797139329064
 st_id = 708108259348709479
+greg_id = 771011111242956820
 
 
 class fInChat(commands.Cog, name='fInChat'):
@@ -16,7 +17,8 @@ class fInChat(commands.Cog, name='fInChat'):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.content == "F" and ((randint(1, 6) == 1)): #I said don't worry about it
+
+        if message.content == "F" and (randint(1, 6) == 1) and not (message.author.id in [greg_id, st_id]):
             await message.channel.send("F")
             if randint(1, 17) == 1:
                 await message.channel.send("wait") #F...wait
