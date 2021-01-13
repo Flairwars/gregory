@@ -18,10 +18,12 @@ class fInChat(commands.Cog, name='fInChat'):
     async def on_message(self, message):
         if message.author == self.client.user:
             return
-
-        if message.content == "F" and (randint(1, 6) == 1 or message.author.id != st_id):
+        elif message.content == "F" and (randint(1, 6) == 1 or message.author.id != st_id):
             await message.channel.send("F")
-            if randint(1, 17) == 1:
+            if randint(1, 600) == 1:
                 await message.channel.send("wait") #F...wait
+        elif (message.author.id == st_id) and (message.channel.id == respects_id): #responds to ST's Fs
+            await message.channel.send("F")
 
-#I'm only commenting this cause it's good coding practice but honestly a 4 year-old could probably understand this code
+def setup(client):
+    client.add_cog(fInChat(client))
