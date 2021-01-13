@@ -16,12 +16,13 @@ class fInChat(commands.Cog, name='fInChat'):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.content == "F" and ((randint(1, 6) == 1)): #I said don't worry about it
+        if message.author == self.client.user:
+            return
+        elif message.content == "F" and (randint(1, 6) == 1 or message.author.id != st_id):
             await message.channel.send("F")
-            if randint(1, 17) == 1:
+            if randint(1, 600) == 1:
                 await message.channel.send("wait") #F...wait
-
-        if (message.author.id == st_id) and (message.channel.id == respects_id): #responds to ST's Fs
+        elif (message.author.id == st_id) and (message.channel.id == respects_id): #responds to ST's Fs
             await message.channel.send("F")
 
 def setup(client):
