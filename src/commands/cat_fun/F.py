@@ -21,7 +21,8 @@ class fInChat(commands.Cog, name='fInChat'):
 
         if (message.content == "F" and randint(1, 6) == 1) or (message.author.id == st_id and message.channel.id == respects_id):
             await message.channel.send("F")
-            if randint(1, 17) == 1:
+            if randint(1, 600) == 1:
                 await message.channel.send("wait") #F...wait
 
-#I'm only commenting this cause it's good coding practice but honestly a 4 year-old could probably understand this code
+def setup(client):
+    client.add_cog(fInChat(client))
