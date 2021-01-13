@@ -19,7 +19,7 @@ class fInChat(commands.Cog, name='fInChat'):
         if message.author == self.client.user:
             return
 
-        if message.content == "F" and (randint(1, 6) == 1 or message.author.id != st_id):
+        if (message.content == "F" and randint(1, 6) == 1) or (message.author.id == st_id and message.channel.id == respects_id):
             await message.channel.send("F")
             if randint(1, 17) == 1:
                 await message.channel.send("wait") #F...wait
