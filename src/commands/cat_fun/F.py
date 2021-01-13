@@ -24,4 +24,5 @@ class fInChat(commands.Cog, name='fInChat'):
         if (message.author.id == st_id) and (message.channel.id == respects_id): #responds to ST's Fs
             await message.channel.send("F")
 
-#I'm only commenting this cause it's good coding practice but honestly a 4 year-old could probably understand this code
+def setup(client):
+    client.add_cog(fInChat(client))
