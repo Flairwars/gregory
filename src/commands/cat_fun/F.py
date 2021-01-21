@@ -18,12 +18,11 @@ class fInChat(commands.Cog, name='fInChat'):
     async def on_message(self, message):
         if message.author == self.client.user:
             return
-        elif message.content == "F" and (randint(1, 6) == 1 or message.author.id != st_id):
+
+        if (message.content == "F" and randint(1, 6) == 1) or (message.author.id == st_id and message.channel.id == respects_id):
             await message.channel.send("F")
             if randint(1, 600) == 1:
                 await message.channel.send("wait") #F...wait
-        elif (message.author.id == st_id) and (message.channel.id == respects_id): #responds to ST's Fs
-            await message.channel.send("F")
 
 def setup(client):
     client.add_cog(fInChat(client))
