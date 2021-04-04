@@ -1,19 +1,31 @@
 import pathlib
 
 from discord.ext import commands, tasks
-from sql.count import sql_class
-from reddit.count import reddit_class
-
+from discord.ext import commands
+from sql.count import SqlClass
+from praw import Reddit
+from decouple import config
 from functools import partial
+import requests
+import discord
 
-class count(commands.Cog, name='count'):
+class Count(commands.Cog, name='counting'):
     """
-    Count command shiz
+    Counts different subreddits
     """
     def __init__(self, client):
         self.client = client
+        self.reddit = Reddit(
+            client_id=config('REDDITID'),
+            client_secret=config('REDDITSECRET'),
+            user_agent='Yellow Beetlejuice Discord bot'
+        )
+        self.sql = SqlClass()
+
         self.category = pathlib.Path(__file__).parent.absolute().name[4:]
+
         self.update_colour_database.start()
+
         red_sub = ("DSRRed", "red")
         orange_sub = ("EternalOrange", "orange")
         yellow_sub = ("YellowOnlineUnion", "yellow")
@@ -98,7 +110,7 @@ class count(commands.Cog, name='count'):
         """
         reddit = reddit_class()
         sql = sql_class()
-        
+        # TODO: finish passing info from beetlejuice
         posts = reddit.get_hotposts('Flairwars', 100)
         posts += reddit.get_hotposts('DSRRed',100)
         #posts += reddit.get_hotposts('EternalOrange',100) honestly fuck orange flairs. they can suck my hairy balls

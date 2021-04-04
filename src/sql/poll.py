@@ -1,272 +1,313 @@
-import pymysql
-from decouple import config
+import sqlite3
+import datetime
 
-class sql_class():
-    def __init__(self): 
-        host = config('SQLIP')
-        port = int(config('SQLPORT'))
-        user = config('SQLUSER')
-        password = config('SQLPASS')
-        database = config('SQLDATA')
 
-        self.conn = pymysql.connect(host = host, port = port, user = user, password = password, database =database)
-        self.cursor = self.conn.cursor()
+# noinspection SqlNoDataSourceInspection
+class SqlClass:
+    def __init__(self):
+        self.database = 'datatables.db'
+        sql_create_guilds_table = """CREATE TABLE IF NOT EXISTS guilds (
+                                                    guild_id integer PRIMARY KEY
+                                                );"""
+        sql_create_users_table = """CREATE TABLE IF NOT EXISTS users (
+                                                    user_id integer PRIMARY KEY
+                                                );"""
+        sql_create_user_guilds_table = """ CREATE TABLE IF NOT EXISTS user_guilds (
+                                                    user_id integer,
+                                                    guild_id integer,
+                                                    FOREIGN KEY (guild_id) REFERENCES guilds (guild_id)
+                                                        ON DELETE CASCADE ON UPDATE CASCADE,
+                                                    FOREIGN KEY (user_id) REFERENCES users (user_id)
+                                                        ON DELETE CASCADE ON UPDATE CASCADE,
+                                                    PRIMARY KEY (user_id, guild_id)
+                                                ); """
+        sql_create_polls_table = """CREATE TABLE IF NOT EXISTS polls (
+                                            message_id integer,
+                                            channel_id integer,
+                                            guild_id integer,
+                                            name text,
+                                            time datetime,
+                                            FOREIGN KEY (guild_id) REFERENCES guilds (guild_id)
+                                                ON DELETE CASCADE ON UPDATE CASCADE,
+                                            PRIMARY KEY (message_id, channel_id, guild_id)
+                                        );"""
+        sql_create_options_table = """ CREATE TABLE IF NOT EXISTS options (
+                                            message_id integer,
+                                            channel_id integer,
+                                            guild_id integer,
+                                            emote_id integer,
+                                            name text,
+                                            FOREIGN KEY (message_id, channel_id, guild_id)
+                                                REFERENCES polls (message_id, channel_id, guild_id)
+                                                ON DELETE CASCADE ON UPDATE CASCADE,
+                                            PRIMARY KEY (emote_id, message_id, channel_id, guild_id)
+                                        ); """
+        sql_create_votes_table = """ CREATE TABLE IF NOT EXISTS votes (
+                                            user_id integer,
+                                            emote_id integer,
+                                            message_id integer,
+                                            channel_id integer,
+                                            guild_id integer,
+                                            FOREIGN KEY (emote_id, message_id, channel_id, guild_id)
+                                                REFERENCES options (emote_id, message_id, channel_id, guild_id)
+                                                ON DELETE CASCADE ON UPDATE CASCADE,
+                                            FOREIGN KEY (user_id, guild_id) REFERENCES user_guilds (user_id, guild_id)
+                                                ON UPDATE CASCADE ON DELETE CASCADE,
+                                            PRIMARY KEY (user_id, emote_id, message_id, channel_id, guild_id)
+                                        ); """
 
-    def add_poll(self, message_id, channel_id, guild_id, name, time, emote_ids, args):
-        '''
-        Adds row to polls table
-        Adds rows to poll options table
-        input: <str> message_id, <str> channel_id, <str> guild_id, <str> name, <datetime> time, <list  int> emote_id, <list str> args
-        output: none
-        '''
-        sql = "INSERT INTO polls (`message_id`, `channel_id`, `guild_id`, `name`, `time`) VALUES (%s,%s,%s,%s,%s)"
-        sql2 = "SELECT LAST_INSERT_ID() FROM polls"
-        sql3 = "INSERT INTO poll_options (`poll_id`, `emote_id`, `arg`) VALUES (%s,%s,%s)"
-
-        try:
-            self.conn.ping(reconnect=True)
-            self.cursor.execute(sql, (message_id, channel_id, guild_id, name, time))
-            self.cursor.execute(sql2)
-            data = self.cursor.fetchall()
-
-            for count in range(len(args)):
-                self.cursor.execute(sql3, (data[0][0], str(ord(emote_ids[count])), args[count]))
-            self.conn.commit()
-            return str(data[0][0])
-        except  Exception as exc:
-            self.conn.rollback()
-            print(str(exc))
-
-    def toggle_vote(self, poll_id, guild_id, emote_id, user_id):
-        """
-        checks whether user exists
-        adds user
-        check if user has voted 
-        adds user vote
-        removes user vote
-        input: <str> message_id, <str> channel_id, <str> guild_id, <str> emote_id, <str> user_id
-        output: None, True, False
-        """
-        
-        get_user = "SELECT id FROM users WHERE id = %s AND guild_id = %s"
-        add_user = "INSERT INTO users (`id`, `guild_id`) VALUES (%s,%s)"
-
-        get_vote = "SELECT user_id FROM votes WHERE poll_id = %s AND user_id = %s AND emote_id = %s"
-        add_vote = "INSERT INTO votes (`poll_id`, `user_id`, `emote_id`) VALUES (%s,%s,%s)"
-        delete_vote = "DELETE FROM votes WHERE poll_id = %s AND user_id = %s AND emote_id = %s"
-
-        # check if user exists
-        if not self.cursor.execute(get_user, (user_id, guild_id)):
-            try:
-                self.cursor.execute(add_user, (user_id, guild_id))
-                self.conn.commit()
-            except  Exception as exc:
-                self.conn.rollback()
-                print(str(exc))
-                return None
-
-        # checks if person has voted
-        self.cursor.execute(get_vote, (poll_id, user_id, emote_id))
-        voted = self.cursor.fetchall()
-        if not voted:
-            # adds vote
-            try:
-                self.cursor.execute(add_vote, (poll_id, user_id, emote_id))
-                self.conn.commit()
-                return True
-            except  Exception as exc:
-                    self.conn.rollback()
-                    print(str(exc))
+        # create a database connection
+        conn = self.create_connection(self.database)
+        # create tables
+        if conn is not None:
+            conn.execute("PRAGMA foreign_keys = ON")
+            self.create_table(conn, sql_create_guilds_table)
+            self.create_table(conn, sql_create_users_table)
+            self.create_table(conn, sql_create_user_guilds_table)
+            self.create_table(conn, sql_create_polls_table)
+            self.create_table(conn, sql_create_options_table)
+            self.create_table(conn, sql_create_votes_table)
         else:
-            # removes vote
-            try:
-                self.cursor.execute(delete_vote, (poll_id, user_id, emote_id))
-                self.conn.commit()
-                return False
-            except  Exception as exc:
-                    self.conn.rollback()
-                    print(str(exc))
-        return None
-    
-    def get_poll(self, message_id, channel_id, guild_id):
-        '''
-        gets the poll id from the polls db
-        input: <str> message_id, <str> channel_id, <str> guild_id
-        output: <int> id
-        '''
-        get_poll = "SELECT id FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
+            print("Error! cannot create the database connection.")
 
-        self.conn.ping(reconnect=True)
-        # get relevent poll
-        self.cursor.execute(get_poll, (message_id, channel_id, guild_id))
-        poll_id = self.cursor.fetchall()
-
-        if poll_id:
-            return poll_id[0][0]
-        return None
-
-    def check_polls(self, user_id):
-        '''
-        gets poll id from all the polls that someone as voted on
-        input: <str> user_id
-        output: <list int> poll_id
-        '''
-        sql = "SELECT polls.id FROM polls,votes WHERE votes.user_id = %s AND polls.id = votes.poll_id"
-
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql, user_id)
-        data = self.cursor.fetchall()
-        return data
-
-    def check_votes(self, user_id, poll_id):
-        '''
-        checks how many votes are on a poll and reponds with the name of the option
-        input: <str> user_id, <int> poll_id
-        output: <list str> arg
-        '''
-        sql = """
-        SELECT poll_options.`arg`, polls.`name`
-        FROM poll_options,votes,polls
-        WHERE votes.user_id = %s
-        AND votes.poll_id = %s
-        AND votes.emote_id = poll_options.emote_id
-        AND votes.poll_id = poll_options.poll_id
-        AND votes.poll_id = polls.id
+    @staticmethod
+    def create_connection(db_file):
+        """ create a database connection to the SQLite database
+            specified by db_file
+        :param db_file: database file
+        :return: Connection object or None
         """
+        conn = None
+        try:
+            conn = sqlite3.connect(db_file)
+            return conn
+        except Exception as e:
+            print(e)
 
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql, (user_id, poll_id))
-        data = self.cursor.fetchall()
-        return data
+        return conn
 
-    def get_poll_name(self, poll_id):
-        '''
-        gets the poll name from polls
-        input: <int> poll_id
-        output: <str> name
-        '''
-        sql = "SELECT name FROM polls WHERE id = %s"
+    @staticmethod
+    def create_table(conn, create_table_sql: str) -> None:
+        """ create a table from the create_table_sql statement
+        :param conn: Connection object
+        :param create_table_sql: a CREATE TABLE statement
+        :return:
+        """
+        try:
+            c = conn.cursor()
+            c.execute(create_table_sql)
+        except Exception as e:
+            print(e)
 
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql, poll_id)
-        data = self.cursor.fetchall()
-        return data[0][0]
+    def execute(self, sql: str, parms: tuple = ()) -> list:
+        """Executes a single command
+        :param sql:
+        :param parms:
+        :return:
+        """
+        conn = self.create_connection(self.database)
+
+        if conn is not None:
+            try:
+                c = conn.cursor()
+                c.execute(sql, parms)
+                data = c.fetchall()
+                conn.commit()
+                return data
+            except Exception as e:
+                print(e)
+
+    def execute_many(self, sql: str, parms: list) -> list:
+        """Executes a multi line command
+        :param sql:
+        :param parms:
+        :return:
+        """
+        conn = self.create_connection(self.database)
+
+        if conn is not None:
+            try:
+                c = conn.cursor()
+                c.executemany(sql, parms)
+                data = c.fetchall()
+                conn.commit()
+                return data
+            except Exception as e:
+                print(e)
+
+    ############################################################
+
+    def get_guilds(self) -> list:
+        """
+        Gets all the guilds recorded on the discord bot
+        :return: a tuple of all the discord server ids
+        """
+        sql = """SELECT guild_id FROM guilds"""
+        return self.execute(sql)
+
+    def add_guilds(self, guilds: list) -> None:
+        """
+        Adds multiple guilds to the db
+        :param guilds: A list of new guilds
+        :return:
+        """
+        sql = """INSERT INTO guilds (`guild_id`) VALUES (?)"""
+        parms = [(guild, ) for guild in guilds]
+        self.execute_many(sql, parms)
+
+    def remove_guilds(self, guilds: list) -> None:
+        """
+        Remove multiple guilds to the db
+        :param guilds: A list of old guilds
+        :return:
+        """
+        sql = """DELETE FROM guilds WHERE guild_id = ?"""
+        parms = [(guild, ) for guild in guilds]
+        self.execute_many(sql, parms)
+
+    def add_poll(self, message_id: int, channel_id: int, guild_id: int, name: str, time: datetime = None) -> None:
+        """Creates a new poll
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :param name: the title of the poll
+        :param time: optional time at which the poll ends
+        :return:
+        """
+        sql = """INSERT INTO polls (`message_id`, `channel_id`, `guild_id`, `name`, `time`) VALUES (?,?,?,?,?)"""
+        self.execute(sql, (message_id, channel_id, guild_id, name, time))
+
+    def get_poll(self, message_id: int, channel_id: int, guild_id: int) -> list:
+        """Selects message id of poll
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :return: the message id of the poll
+        """
+        sql = """SELECT polls.name, options.name, options.emote_id, polls.message_id, polls.channel_id, polls.guild_id
+        FROM polls, options
+        WHERE polls.message_id=? AND polls.channel_id=? AND polls.guild_id=?
+        AND polls.message_id = options.message_id
+        AND polls.channel_id = options.channel_id
+        AND polls.guild_id = options.guild_id"""
+        return self.execute(sql, (message_id, channel_id, guild_id))
 
     def get_polls(self):
-        '''
-        gets all poll ids and times
-        input: None
-        output: <list int> poll_id, <list datetime> time
-        '''
-        sql = "SELECT id, time FROM polls"
-
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql)
-        data = self.cursor.fetchall()
-        return data
-    
-    def get_poll_info(self, poll_id):
-        '''
-        gets the name, channel and votes of a poll
-        input: <int> poll_id
-        output: <str> channel_id, <str> name, <list str> user_id, <list str> arg
-        '''
-        sql = "SELECT channel_id,name FROM polls WHERE id = %s"
-        sql2 = """SELECT votes.user_id,poll_options.arg 
-        FROM votes,poll_options 
-        WHERE votes.poll_id = %s 
-        AND poll_options.poll_id = votes.poll_id 
-        AND votes.emote_id = poll_options.emote_id 
+        """Selects all polls in the database for setup
+        :return: poll id and time
         """
+        sql = """SELECT time, message_id, channel_id, guild_id FROM polls"""
+        return self.execute(sql, ())
 
-        self.conn.ping(reconnect=True)
+    def get_poll_time(self, message_id: int, channel_id: int, guild_id: int) -> list:
+        """Gets poll time
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :param message_id:
+        :param channel_id:
+        :param guild_id:
+        :return:
+        """
+        sql = """SELECT time, message_id, channel_id, guild_id FROM polls
+        WHERE message_id=? AND channel_id=? AND guild_id=?"""
+        return self.execute(sql, (message_id, channel_id, guild_id))
 
-        self.cursor.execute(sql, poll_id)
-        poll_info = self.cursor.fetchall()
+    def remove_poll(self, message_id: int, channel_id: int, guild_id: int) -> None:
+        """Deletes a poll
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :return:
+        """
+        sql = """DELETE FROM polls WHERE message_id=? AND channel_id=? AND guild_id=?"""
+        self.execute(sql, (message_id, channel_id, guild_id))
 
-        self.cursor.execute(sql2, poll_id)
-        votes = self.cursor.fetchall()
+    def add_options(self, message_id: int, channel_id: int, guild_id: int, emote_ids: list, names: list) -> None:
+        """Creates all the options in the options table
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :param emote_ids: the emote of the poll
+        :param names: the name of the option
+        :return:
+        """
+        sql = """INSERT INTO options (`message_id`, `channel_id`, `guild_id`, `emote_id`, `name`) VALUES (?,?,?,?,?)"""
+        parms = [(message_id, channel_id, guild_id, emote_ids[n], names[n]) for n in range(len(names))]
+        self.execute_many(sql, parms)
 
-        return poll_info[0], votes
+    def add_user(self, user_id: int, guild_id: int) -> None:
+        """Adds user to database
+        :param user_id: the discord id of the user
+        :param guild_id: the id of the current discord server
+        :return:
+        """
+        sql = """INSERT OR IGNORE INTO users (`user_id`) VALUES (?)"""
+        self.execute(sql, (user_id,))
+        sql = """INSERT OR IGNORE INTO user_guilds (`user_id`,`guild_id`) VALUES (?,?)"""
+        self.execute(sql, (user_id, guild_id))
 
-    def remove_poll(self, poll_id):
-        '''
-        deletes poll from poll
-        input: <str> poll_id
-        output: None
-        '''
-        sql = "DELETE FROM polls WHERE id = %s"
-        self.conn.ping(reconnect=True)
+    def add_vote(self, user_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> None:
+        """Adds a vote
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :param emote_id: the id of emote
+        :param user_id: the id of the user's account
+        :return:
+        """
+        sql = """INSERT INTO votes (`user_id`, `emote_id`, `message_id`, `channel_id`, `guild_id`) VALUES (?,?,?,?,?)"""
+        self.execute(sql, (user_id, emote_id, message_id, channel_id, guild_id))
 
-        try:
-            self.cursor.execute(sql, poll_id)
-            self.conn.commit()
-        except  Exception as exc:
-            self.conn.rollback()
-            print(str(exc))
-    
-    def location_get_poll(self, message_id, channel_id, guild_id):
-        '''
-        gets poll via message location
-        input: <str> message_id, <str> channel_id, <str> guild_id
-        output: <int> id, <datetime> time
-        '''
-        sql = "SELECT id,time FROM polls WHERE message_id = %s AND channel_id = %s AND guild_id = %s"
+    def remove_vote(self, user_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> None:
+        """Deletes a vote
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :param emote_id: the id of emote
+        :param user_id: the id of the user's account
+        :return:
+        """
+        sql = """DELETE FROM votes WHERE user_id=? AND emote_id=? AND message_id=? AND channel_id=? AND guild_id=?"""
+        self.execute(sql, (user_id, emote_id, message_id, channel_id, guild_id))
 
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql, (message_id, channel_id, guild_id))
-        poll_id = self.cursor.fetchall()
-        
-        if poll_id:
-            return poll_id[0][0], poll_id[0][1]
-        return None, None
+    def check_vote(self, user_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> list:
+        """checks if a vote exists
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :param emote_id: the id of emote
+        :param user_id: the id of the user's account
+        :return: message id of the poll
+        """
+        sql = """SELECT message_id FROM votes
+        WHERE votes.user_id=? AND votes.emote_id=? AND votes.message_id=? AND votes.channel_id=? AND votes.guild_id=?"""
+        return self.execute(sql, (user_id, emote_id, message_id, channel_id, guild_id))
 
-###################################################
+    def get_votes(self, message_id: int, channel_id: int, guild_id: int) -> list:
+        """Gets all the votes of a specific poll
+        :param message_id: the message id of the poll
+        :param channel_id: the channel id of the poll
+        :param guild_id: the guild that the poll is in
+        :return:
+        """
+        sql = """SELECT votes.emote_id FROM votes
+        WHERE votes.message_id=? AND votes.channel_id=? AND votes.guild_id=?"""
+        return self.execute(sql, (message_id, channel_id, guild_id))
 
-    def get_guilds(self):
-        '''
-        gets ids from guilds table
-        input: None
-        output: <str> guild_id
-        '''
-        sql = "SELECT id FROM guilds"
-
-        self.conn.ping(reconnect=True)
-        self.cursor.execute(sql)
-        data = self.cursor.fetchall()
-        if data:
-            return data
-        else:
-            return []
-
-    def add_guild(self, guild_id):
-        '''
-        adds row to guilds table
-        input: <str> guild_id
-        output: <str> None
-        '''
-        sql = 'INSERT INTO guilds (`id`) VALUES (%s)'
-
-        try:
-            self.conn.ping(reconnect=True)
-            self.cursor.execute(sql, guild_id)
-            self.conn.commit()
-        except  Exception as exc:
-            self.conn.rollback()
-            print(str(exc))
-
-    def remove_guild(self, guild_id):
-        '''
-        deletes row to guilds table
-        input: <str> guild_id
-        output: <str> None
-        '''
-        sql = 'DELETE FROM guilds WHERE `id` = %s'
-
-        try:
-            self.conn.ping(reconnect=True)
-            self.cursor.execute(sql, guild_id)
-            self.conn.commit()
-        except  Exception as exc:
-            self.conn.rollback()
-            print(str(exc))
+    def check_votes(self, user_id: int, guild_id: int) -> list:
+        """Returns the name of every poll that the user has voted on
+        :param user_id: the user id of the poll
+        :param guild_id: the guild that the poll is in
+        :return:
+        """
+        sql = """
+        SELECT polls.message_id, polls.channel_id, polls.guild_id, options.emote_id, options.name, polls.name
+        FROM votes, options, polls
+        WHERE votes.user_id = ? AND votes.guild_id = ?
+        AND votes.emote_id = options.emote_id
+        AND votes.message_id = options.message_id AND options.message_id = polls.message_id
+        AND votes.channel_id = options.channel_id AND options.channel_id = polls.channel_id
+        AND votes.guild_id = options.guild_id AND options.guild_id = polls.guild_id
+        """
+        return self.execute(sql, (user_id, guild_id))
