@@ -1,3 +1,9 @@
+"""
+Left help command here for if ritz ever decides to role back the command to what it use to be
+if you wanna use this help command,
+    import pathlib to every command
+    add attribute self.category = Path(__file__).parent.absolute().name[4:] to each cog
+"""
 from discord.ext import commands
 from pathlib import Path
 import pprint

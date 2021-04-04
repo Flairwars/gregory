@@ -37,6 +37,7 @@ async def generate_urban_embed(definition, n, query):
 
     return embed
 
+
 class search(commands.Cog, name='search'):
     """
     Search Commands

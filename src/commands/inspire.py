@@ -3,7 +3,7 @@ from discord import errors
 import aiohttp
 
 
-class inspire(commands.Cog, name='inspire'):
+class inspire(commands.Cog, name='fun'):
     """
     Pings inspirobot API and sends the image
     """
