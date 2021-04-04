@@ -1,5 +1,4 @@
-from discord.ext import com
-mands
+from discord.ext import commands
 from sql.count import SqlClass
 from praw import Reddit
 from decouple import config

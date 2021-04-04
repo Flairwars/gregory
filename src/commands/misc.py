@@ -105,29 +105,6 @@ class misc(commands.Cog, name='misc'):
 
         await ctx.send(embed=embed)
 
-    @commands.command()
-    async def pfp(self, ctx, *, member:discord.Member = None):
-        """
-        Gets your/members pfp
-        """
-        if member==None:
-            url = ctx.author.avatar_url
-            print(url)
-        else:
-            url = member.avatar_url
-
-        embed = discord.Embed(color=discord.Color.green())
-        embed.set_image(url=url)
-
-        await ctx.send(embed=embed)
-
-    @pfp.error
-    async def pfp_error(self, ctx, error):
-        if isinstance(error, commands.errors.MemberNotFound):
-            await ctx.send('`ERROR: member not found`')
-        else:
-            print(error)
-
 
 def setup(client):
     client.add_cog(misc(client))
