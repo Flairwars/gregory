@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord.utils import get
 import discord
 from sql.role import SqlClass # BITCH STOP COMPLAING YOU LITEREALYL WORK. DUMB ASS PROGRAMM
-import pathlib
+
 
 class Role(commands.Cog, name='role'):
     """
@@ -11,7 +11,6 @@ class Role(commands.Cog, name='role'):
     """
     def __init__(self, client):
         self.client = client
-        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
         self.sql = SqlClass()
 
     def _update_roles(self, guild):
@@ -68,7 +67,7 @@ class Role(commands.Cog, name='role'):
 
         self.sql.remove_guilds(lst)
 
-    @commands.command(aliases=['clearroles','purgeroles'])
+    @commands.command(aliases=['clearroles', 'purgeroles'])
     @commands.has_permissions(administrator=True)
     async def removeroles(self, ctx, member: discord.Member = None):
         """Removes a users roles
