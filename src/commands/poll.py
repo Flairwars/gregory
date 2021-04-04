@@ -3,7 +3,7 @@ from discord.ext import commands
 from sql.polls import SqlClass
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from asyncio import sleep
-import pathlib
+
 
 class Polls(commands.Cog, name='polls'):
     """
@@ -12,7 +12,6 @@ class Polls(commands.Cog, name='polls'):
 
     def __init__(self, client):
         self.client = client
-        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
         self.sql = SqlClass()
 
         self.pollsigns = ["🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴",
