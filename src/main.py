@@ -18,6 +18,15 @@ for filename in os.listdir('./commands'):
     if filename.endswith('.py'):
         client.load_extension(f'commands.{filename[:-3]}')
 
+""" Load code for alternate help command
+# loads all cogs
+for category in os.listdir('./commands'):
+    for cog in os.listdir(f'./commands/{category}'):
+        if cog.endswith('.py'):
+            client.load_extension(f'commands.{category}.{cog[:-3]}')
+"""
+
+
 # prints when bot has started up
 @client.event
 async def on_ready():
