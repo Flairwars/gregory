@@ -6,6 +6,8 @@ import aiohttp
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+
+
 # TODO: check for redundant imports
 
 class quadfunc(commands.Cog, name='math'):
@@ -129,7 +131,8 @@ class quadfunc(commands.Cog, name='math'):
             try:  # we try to convert A into a float and create strA for later use
                 A = float(arg1)
                 strA = str(A)
-            except IndexError:  # if the conversion results in a error (ie. someone included a invalid argument when trying to use this solver)
+            except IndexError:  # if the conversion results in a error (ie. someone included a invalid argument when trying to use this
+                # solver)
                 await ctx.send("Incorrect argument A")  # we tell the user which one of the inputed arguments was incorrect
             try:  # same as above but for B
                 B = float(arg2)
@@ -150,7 +153,8 @@ class quadfunc(commands.Cog, name='math'):
         else:  # else we do the solving
             await ctx.send("A: " + strA + "\n" + "B: " + strB + "\n" + "C: " + strC + "\n" + "Delta: " + str(
                 quadfunc.obliczenia(A, B, C)) + '\n' + str(quadfunc.cozdelta(quadfunc.obliczenia(A, B, C), A, B, C)))
-            # we send the   |---------------------Arguments used-------------------| |----------------delta value----------------------|  |------------------the solved function------------------------|
+            # we send the   |---------------------Arguments used-------------------| |----------------delta value----------------------|
+            # |------------------the solved function------------------------|
 
 
 def setup(client):
