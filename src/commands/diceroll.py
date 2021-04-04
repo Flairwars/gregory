@@ -1,12 +1,10 @@
 from discord.ext import commands
 from random import randint
-import pathlib
 
 
-class dice_roll(commands.Cog, name='dice_roll'):
+class DiceRoll(commands.Cog, name='misc'):
     def __init__(self, client):
         self.client = client
-        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
 
     @commands.command(aliases=['roll'])
     async def diceroll(self, ctx, *args):
@@ -49,4 +47,4 @@ class dice_roll(commands.Cog, name='dice_roll'):
 
 
 def setup(client):
-    client.add_cog(dice_roll(client))
+    client.add_cog(DiceRoll(client))
