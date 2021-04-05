@@ -149,8 +149,7 @@ class Count(commands.Cog, name='misc'):
             response += f'\n**Page {page + 1}**\n'
             for key in count[page].keys():
                 if count[page][key] != 0:
-                    response += f'{key} : {str(count[page][key])}\n'.replace("_", "\_").replace("*", "\*").replace("~",
-                                                                                                                   "\~")
+                    response += f'{key} : {str(count[page][key])}\n'.replace("_", "\_").replace("*", "\*").replace("~", "\~")
 
         await msg.edit(content=response)
 

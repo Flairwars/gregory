@@ -92,10 +92,11 @@ class Polls(commands.Cog, name='polls'):
         """
         self._update_guild()
         embed = self._count_poll(message_id, channel_id, guild_id)
-        channel = self.client.get_channel(channel_id)
+        if embed is not None:
+            channel = self.client.get_channel(channel_id)
 
-        await channel.send(embed=embed)
-        self.sql.remove_poll(message_id, channel_id, guild_id)
+            await channel.send(embed=embed)
+            self.sql.remove_poll(message_id, channel_id, guild_id)
 
     def _count_poll(self, message_id: int, channel_id: int, guild_id: int) -> object:
         """Counts up the votes for a poll and returns the embed
@@ -106,21 +107,22 @@ class Polls(commands.Cog, name='polls'):
         """
         poll_info = self.sql.get_poll(message_id, channel_id, guild_id)
 
-        votes = {}
-        for poll in poll_info:
-            votes[poll[2]] = [0, poll[1]]
+        if poll_info:
+            votes = {}
+            for poll in poll_info:
+                votes[poll[2]] = [0, poll[1]]
 
-        user_votes = self.sql.get_votes(message_id, channel_id, guild_id)
+            user_votes = self.sql.get_votes(message_id, channel_id, guild_id)
 
-        for vote in user_votes:
-            votes[vote[0]][0] += 1
+            for vote in user_votes:
+                votes[vote[0]][0] += 1
 
-        description = ''
-        for emote, value in votes.items():
-            description += f'{emote} {value[1]}: {value[0]}\n'
+            description = ''
+            for emote, value in votes.items():
+                description += f'{emote} {value[1]}: {value[0]}\n'
 
-        embed = discord.Embed(title=poll_info[0][0], color=discord.Color.green(), description=description)
-        return embed
+            embed = discord.Embed(title=poll_info[0][0], color=discord.Color.green(), description=description)
+            return embed
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload) -> None:
