@@ -135,6 +135,16 @@ class Count(commands.Cog, name='misc'):
                         else:
                             # if flairapi doesnt have it, it will request it directly from reddit's api
                             # self.reddit.subreddit("flairwars").
+                            # TODO: fix getting user roles from reddit, atm results in HTTP 403
+                            '''
+                            redditor = self.reddit.redditor(author)
+                            print(redditor)
+                            flair_ = []
+                            for flair in self.reddit.subreddit("flairwars").flair():
+                                print(flair)
+                            print(flair_)
+                            # author_flair_text
+                            '''
                             user_color = author
                             page_count[user_color] = 0
 
