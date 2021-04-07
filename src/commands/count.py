@@ -52,8 +52,6 @@ class Count(commands.Cog, name='misc'):
             "purple": purple_sub,
             "purp": purple_sub,
             "p": purple_sub,
-
-            "pink": green_sub
         }
 
     def get_hotposts(self, sub: str):
@@ -168,7 +166,7 @@ class Count(commands.Cog, name='misc'):
                                                                                     discord.errors.DiscordException):
             await ctx.send('`ERROR Missing Required Argument: .count yellow`')
         else:
-            await ctx.send(f'`ERROR: {type(error), error}`')
+            await ctx.send(f'`ERROR: {type(error)}: {error}`')
 
 
 def setup(client):

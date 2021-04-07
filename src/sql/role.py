@@ -1,4 +1,6 @@
 import sqlite3
+from decouple import config
+import pymysql
 
 
 # noinspection SqlNoDataSourceInspection
@@ -61,7 +63,10 @@ class SqlClass:
         """
         conn = None
         try:
-            conn = sqlite3.connect(db_file)
+            # If you are testing and debugging, change which lines are commented out. you will have to do this for each sql file
+            # conn = sqlite3.connect(db_file)
+            conn = pymysql.connect(host=config('SQLIP'), port=int(config('SQLPORT')), user=config('SQLUSER'), password=config('SQLPASS'),
+                                   database=config('SQLDATA'))
             return conn
         except Exception as e:
             print(e)
