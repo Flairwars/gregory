@@ -119,7 +119,7 @@ class quadfunc(commands.Cog, name='math'):
                 return delta_status
 
     @commands.command(aliases=['quadfunc'])
-    async def qff(self, ctx, arg1, arg2, arg3):
+    async def qf(self, ctx, arg1, arg2, arg3):
         wrong_values = False  # i create a self explenatory(<-- i hope i typed this right lol) variable
         try:  # we try to convert the argguments from strings to floatr type. This is needed for the calculations.
             try:  # we try to convert A into a float and create strA for later use
