@@ -1,23 +1,21 @@
 from discord.ext import commands
 from discord import errors
-import aiohttp, pathlib
+import aiohttp
 
-class inspire(commands.Cog, name='inspire'):
-    '''
+
+class inspire(commands.Cog, name='fun'):
+    """
     Pings inspirobot API and sends the image
-    '''
-
+    """
     def __init__(self, client):
         self.client = client
-        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
-
 
     @commands.command(aliases=['inspireme', 'insp'])
     async def inspire(self, ctx, n:int=1):
-        '''
+        """
         Sends an image from inspirobot. Number of images to be sent can be passed (max 5).
         n = number of images sent (limit = 5)
-        '''
+        """
         if n > 5 or n < 0:
             raise errors.DiscordException
 
