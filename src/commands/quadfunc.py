@@ -1,11 +1,5 @@
-from discord.ext import commands
-from discord import errors
-import discord
-from discord.ext import commands
-import aiohttp
-import numpy as np
 import math
-import matplotlib.pyplot as plt
+from discord.ext import commands
 
 
 # TODO: check for redundant imports
