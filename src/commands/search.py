@@ -1,9 +1,9 @@
 import asyncio
-import pathlib
 
 import discord
 from discord.ext import commands
 from apis import urban, weather, wyr, constants, xkcd
+
 
 async def generate_urban_embed(definition, n, query):
     if n < 0:
@@ -37,7 +37,8 @@ async def generate_urban_embed(definition, n, query):
 
     return embed
 
-class search(commands.Cog, name='search'):
+
+class search(commands.Cog, name='fun'):
     """
     Search Commands
     With this you can search for content on various websites :)
@@ -45,7 +46,6 @@ class search(commands.Cog, name='search'):
 
     def __init__(self, client):
         self.client = client
-        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
 
     @commands.command(aliases=['ub'])
     async def urban(self, ctx, *, query=' '):

@@ -1,4 +1,3 @@
-import pathlib
 from discord.ext import commands
 from PIL import ImageColor, Image
 import discord
@@ -11,15 +10,14 @@ class misc(commands.Cog, name='misc'):
     """
     def __init__(self, client):
         self.client = client
-        self.category = pathlib.Path(__file__).parent.absolute().name[4:]
-    
+
     @commands.command(aliases=['git'])
     async def github(self, ctx):
         """
         sends link to the github repo
         """
         await ctx.send('https://github.com/Flairwars/gregory')
-        
+
     @commands.command(aliases=['colour'])
     async def color(self, ctx, hex : str):
         """
@@ -27,7 +25,7 @@ class misc(commands.Cog, name='misc'):
         """
         if not hex.startswith('#'):
             hex ='#'+hex
-        
+
         color = ImageColor.getrgb(hex)
         img = Image.new('RGB', (600, 200), color = color)
 
@@ -35,7 +33,7 @@ class misc(commands.Cog, name='misc'):
         img.save(arr, format='PNG')
         arr.seek(0)
         file = discord.File(arr, 'color.png')
-        
+
         embed = discord.Embed(title=hex, color=discord.Color.green())
         embed.set_image(url='attachment://color.png')
         await ctx.send(file=file, embed=embed)
@@ -106,29 +104,6 @@ class misc(commands.Cog, name='misc'):
             return
 
         await ctx.send(embed=embed)
-    
-    @commands.command()
-    async def pfp(self, ctx, *, member:discord.Member = None):
-        """
-        Gets your/members pfp
-        """
-        if member==None:
-            url = ctx.author.avatar_url
-            print(url)
-        else:
-            url = member.avatar_url
-        
-        embed = discord.Embed(color=discord.Color.green())
-        embed.set_image(url=url)
-
-        await ctx.send(embed=embed)
-
-    @pfp.error
-    async def pfp_error(self, ctx, error):
-        if isinstance(error, commands.errors.MemberNotFound):
-            await ctx.send('`ERROR: member not found`')
-        else:
-            print(error)
 
 
 def setup(client):
