@@ -88,7 +88,8 @@ class Count(commands.Cog, name='misc'):
         posts = await self.client.loop.run_in_executor(None, fn)
 
         # Include only the author names.
-        posts = list(map(lambda a: a.author.name, posts))
+        # only green has proper css class names. as green will be using the command the most on their sub, it will be used to verify color
+        posts = list(map(lambda a: [a.author.name, a.author_flair_css_class], posts))
 
         pages = []
         for i in range(0, 5):
@@ -113,43 +114,39 @@ class Count(commands.Cog, name='misc'):
 
             for author in page:
                 # author = 'reddit account name'
-                if author in users.keys():
+                if author[0] in users.keys():
                     # if user has already been seen by the code
-                    user_color = users[author]
+                    user_color = users[author[0]]
                     page_count[user_color] += 1
                 else:
                     # if the code hasnt seen this user, it checks the database
-                    userinfo = self.sql.get_reddit_color(author)  # if user color unknown, funct returns empty list
+                    userinfo = self.sql.get_reddit_color(author[0])  # if user color unknown, funct returns empty list
                     if userinfo:
                         user_color = userinfo[0][0]
                     else:
                         # if the user isnt in the database, it checks the api
-                        url = f'https://api.flairwars.com/users?RedditUsername={author}'
+                        url = f'https://api.flairwars.com/users?RedditUsername={author[0]}'
                         header = {"accept": "application/json"}
                         r = requests.get(url, headers=header)
                         userinfo = r.json()
                         if userinfo:
                             # print(userinfo)
                             user_color = userinfo[0]['FlairwarsColor']
-                            self.sql.add_user(userinfo[0]['DiscordMemberID'], author, userinfo[0]['FlairwarsColor'])
+                            self.sql.add_user(userinfo[0]['DiscordMemberID'], author[0], userinfo[0]['FlairwarsColor'])
                         else:
-                            # if flairapi doesnt have it, it will request it directly from reddit's api
-                            # self.reddit.subreddit("flairwars").
-                            # TODO: fix getting user roles from reddit, atm results in HTTP 403
-                            '''
-                            redditor = self.reddit.redditor(author)
-                            print(redditor)
-                            flair_ = []
-                            for flair in self.reddit.subreddit("flairwars").flair():
-                                print(flair)
-                            print(flair_)
-                            # author_flair_text
-                            '''
-                            user_color = author
-                            page_count[user_color] = 0
+                            # if flairapi doesnt have it, it will try and parse the information from the posts
+                            # this is unreliable and inconsistent. it will only work on green. this
+                            author[1] = author[1].lower()
+                            # purple uses alternative css class names which breaks this. hence why im checking for it
+                            if (author[1] is not None) and (author[1] in ("red", "orange", "yellow", "green", "blue", "purple")):
+                                user_color = author[1]
+                                # TODO: make it store new discovered users in sql db
+                            else:
+                                user_color = author[0]
+                                page_count[user_color] = 0
 
                     page_count[user_color] += 1
-                    users[author] = user_color
+                    users[author[0]] = user_color
             count.append(page_count)
         # count = [{color posts per page},{},{}]
 
