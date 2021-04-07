@@ -28,7 +28,7 @@ class SqlClass:
         conn = self.create_connection(self.database)
         # create tables
         if conn is not None:
-            #conn.execute("PRAGMA foreign_keys = ON")
+            conn.execute("PRAGMA foreign_keys = ON")
             self.create_table(conn, sql_create_discord_users_table)
             self.create_table(conn, sql_create_reddit_users_table)
             self.create_table(conn, sql_create_reddit_discord_table)
@@ -45,9 +45,9 @@ class SqlClass:
         conn = None
         try:
             # If you are testing and debugging, change which lines are commented out. you will have to do this for each sql file
-            #conn = sqlite3.connect(db_file)
-            conn = pymysql.connect(host=config('SQLIP'), port=int(config('SQLPORT')), user=config('SQLUSER'), password=config('SQLPASS'),
-                                   database=config('SQLDATA'))
+            conn = sqlite3.connect(db_file)
+            #conn = pymysql.connect(host=config('SQLIP'), port=int(config('SQLPORT')), user=config('SQLUSER'), password=config('SQLPASS'),
+            #                       database=config('SQLDATA'))
             return conn
         except Exception as e:
             print(e)
