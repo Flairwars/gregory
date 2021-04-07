@@ -132,15 +132,17 @@ class Count(commands.Cog, name='misc'):
                         if userinfo:
                             # print(userinfo)
                             user_color = userinfo[0]['FlairwarsColor']
-                            self.sql.add_user(userinfo[0]['DiscordMemberID'], author[0], userinfo[0]['FlairwarsColor'])
+                            self.sql.add_discord_user(userinfo[0]['DiscordMemberID'])
+                            self.sql.add_reddit_user(author[0], userinfo[0]['FlairwarsColor'])
+                            self.sql.add_reddit_discord(userinfo[0]['DiscordMemberID'], author[0])
                         else:
                             # if flairapi doesnt have it, it will try and parse the information from the posts
-                            # this is unreliable and inconsistent. it will only work on green. this
-                            author[1] = author[1].lower()
+                            # this is unreliable and inconsistent. it will only work on green
+
                             # purple uses alternative css class names which breaks this. hence why im checking for it
-                            if (author[1] is not None) and (author[1] in ("red", "orange", "yellow", "green", "blue", "purple")):
-                                user_color = author[1]
-                                # TODO: make it store new discovered users in sql db
+                            if (author[1] is not None) and (author[1].lower() in ("red", "orange", "yellow", "green", "blue", "purple")):
+                                user_color = author[1].lower()
+                                self.sql.add_reddit_user(author[0], user_color)
                             else:
                                 user_color = author[0]
                                 page_count[user_color] = 0

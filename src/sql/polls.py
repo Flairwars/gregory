@@ -9,17 +9,17 @@ class SqlClass:
         sql_create_guilds_table = """CREATE TABLE IF NOT EXISTS guilds (
                                                     guild_id integer PRIMARY KEY
                                                 );"""
-        sql_create_users_table = """CREATE TABLE IF NOT EXISTS users (
-                                                    user_id integer PRIMARY KEY
+        sql_create_users_table = """CREATE TABLE IF NOT EXISTS discord_users (
+                                                    discord_id integer PRIMARY KEY
                                                 );"""
         sql_create_user_guilds_table = """ CREATE TABLE IF NOT EXISTS user_guilds (
-                                                    user_id integer,
+                                                    discord_id integer,
                                                     guild_id integer,
                                                     FOREIGN KEY (guild_id) REFERENCES guilds (guild_id)
                                                         ON DELETE CASCADE ON UPDATE CASCADE,
-                                                    FOREIGN KEY (user_id) REFERENCES users (user_id)
+                                                    FOREIGN KEY (discord_id) REFERENCES discord_users (discord_id)
                                                         ON DELETE CASCADE ON UPDATE CASCADE,
-                                                    PRIMARY KEY (user_id, guild_id)
+                                                    PRIMARY KEY (discord_id, guild_id)
                                                 ); """
         sql_create_polls_table = """CREATE TABLE IF NOT EXISTS polls (
                                             message_id integer,
@@ -43,7 +43,7 @@ class SqlClass:
                                             PRIMARY KEY (emote_id, message_id, channel_id, guild_id)
                                         ); """
         sql_create_votes_table = """ CREATE TABLE IF NOT EXISTS votes (
-                                            user_id integer,
+                                            discord_id integer,
                                             emote_id integer,
                                             message_id integer,
                                             channel_id integer,
@@ -51,9 +51,9 @@ class SqlClass:
                                             FOREIGN KEY (emote_id, message_id, channel_id, guild_id)
                                                 REFERENCES options (emote_id, message_id, channel_id, guild_id)
                                                 ON DELETE CASCADE ON UPDATE CASCADE,
-                                            FOREIGN KEY (user_id, guild_id) REFERENCES user_guilds (user_id, guild_id)
+                                            FOREIGN KEY (discord_id, guild_id) REFERENCES user_guilds (discord_id, guild_id)
                                                 ON UPDATE CASCADE ON DELETE CASCADE,
-                                            PRIMARY KEY (user_id, emote_id, message_id, channel_id, guild_id)
+                                            PRIMARY KEY (discord_id, emote_id, message_id, channel_id, guild_id)
                                         ); """
 
         # create a database connection
@@ -236,53 +236,53 @@ class SqlClass:
         parms = [(message_id, channel_id, guild_id, emote_ids[n], names[n]) for n in range(len(names))]
         self.execute_many(sql, parms)
 
-    def add_user(self, user_id: int, guild_id: int) -> None:
+    def add_user(self, discord_id: int, guild_id: int) -> None:
         """Adds user to database
-        :param user_id: the discord id of the user
+        :param discord_id: the discord id of the user
         :param guild_id: the id of the current discord server
         :return:
         """
-        sql = """INSERT OR IGNORE INTO users (`user_id`) VALUES (?)"""
-        self.execute(sql, (user_id,))
-        sql = """INSERT OR IGNORE INTO user_guilds (`user_id`,`guild_id`) VALUES (?,?)"""
-        self.execute(sql, (user_id, guild_id))
+        sql = """INSERT OR IGNORE INTO discord_users (discord_id) VALUES (?)"""
+        self.execute(sql, (discord_id,))
+        sql = """INSERT OR IGNORE INTO user_guilds (discord_id,`guild_id`) VALUES (?,?)"""
+        self.execute(sql, (discord_id, guild_id))
 
-    def add_vote(self, user_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> None:
+    def add_vote(self, discord_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> None:
         """Adds a vote
         :param message_id: the message id of the poll
         :param channel_id: the channel id of the poll
         :param guild_id: the guild that the poll is in
         :param emote_id: the id of emote
-        :param user_id: the id of the user's account
+        :param discord_id: the id of the user's account
         :return:
         """
-        sql = """INSERT INTO votes (`user_id`, `emote_id`, `message_id`, `channel_id`, `guild_id`) VALUES (?,?,?,?,?)"""
-        self.execute(sql, (user_id, emote_id, message_id, channel_id, guild_id))
+        sql = """INSERT INTO votes (`discord_id`, `emote_id`, `message_id`, `channel_id`, `guild_id`) VALUES (?,?,?,?,?)"""
+        self.execute(sql, (discord_id, emote_id, message_id, channel_id, guild_id))
 
-    def remove_vote(self, user_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> None:
+    def remove_vote(self, discord_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> None:
         """Deletes a vote
         :param message_id: the message id of the poll
         :param channel_id: the channel id of the poll
         :param guild_id: the guild that the poll is in
         :param emote_id: the id of emote
-        :param user_id: the id of the user's account
+        :param discord_id: the id of the user's account
         :return:
         """
-        sql = """DELETE FROM votes WHERE user_id=? AND emote_id=? AND message_id=? AND channel_id=? AND guild_id=?"""
-        self.execute(sql, (user_id, emote_id, message_id, channel_id, guild_id))
+        sql = """DELETE FROM votes WHERE discord_id=? AND emote_id=? AND message_id=? AND channel_id=? AND guild_id=?"""
+        self.execute(sql, (discord_id, emote_id, message_id, channel_id, guild_id))
 
-    def check_vote(self, user_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> list:
+    def check_vote(self, discord_id: int, emote_id: str, message_id: int, channel_id: int, guild_id: int) -> list:
         """checks if a vote exists
         :param message_id: the message id of the poll
         :param channel_id: the channel id of the poll
         :param guild_id: the guild that the poll is in
         :param emote_id: the id of emote
-        :param user_id: the id of the user's account
+        :param discord_id: the id of the user's account
         :return: message id of the poll
         """
         sql = """SELECT message_id FROM votes
-        WHERE votes.user_id=? AND votes.emote_id=? AND votes.message_id=? AND votes.channel_id=? AND votes.guild_id=?"""
-        return self.execute(sql, (user_id, emote_id, message_id, channel_id, guild_id))
+        WHERE votes.discord_id=? AND votes.emote_id=? AND votes.message_id=? AND votes.channel_id=? AND votes.guild_id=?"""
+        return self.execute(sql, (discord_id, emote_id, message_id, channel_id, guild_id))
 
     def get_votes(self, message_id: int, channel_id: int, guild_id: int) -> list:
         """Gets all the votes of a specific poll
@@ -295,19 +295,19 @@ class SqlClass:
         WHERE votes.message_id=? AND votes.channel_id=? AND votes.guild_id=?"""
         return self.execute(sql, (message_id, channel_id, guild_id))
 
-    def check_votes(self, user_id: int, guild_id: int) -> list:
+    def check_votes(self, discord_id: int, guild_id: int) -> list:
         """Returns the name of every poll that the user has voted on
-        :param user_id: the user id of the poll
+        :param discord_id: the user id of the poll
         :param guild_id: the guild that the poll is in
         :return:
         """
         sql = """
         SELECT polls.message_id, polls.channel_id, polls.guild_id, options.emote_id, options.name, polls.name
         FROM votes, options, polls
-        WHERE votes.user_id = ? AND votes.guild_id = ?
+        WHERE votes.discord_id = ? AND votes.guild_id = ?
         AND votes.emote_id = options.emote_id
         AND votes.message_id = options.message_id AND options.message_id = polls.message_id
         AND votes.channel_id = options.channel_id AND options.channel_id = polls.channel_id
         AND votes.guild_id = options.guild_id AND options.guild_id = polls.guild_id
         """
-        return self.execute(sql, (user_id, guild_id))
+        return self.execute(sql, (discord_id, guild_id))

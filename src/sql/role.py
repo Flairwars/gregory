@@ -9,17 +9,17 @@ class SqlClass:
         sql_create_guilds_table = """CREATE TABLE IF NOT EXISTS guilds (
                                             guild_id integer PRIMARY KEY
                                         );"""
-        sql_create_users_table = """CREATE TABLE IF NOT EXISTS users (
-                                                            user_id integer PRIMARY KEY
+        sql_create_discord_users_table = """CREATE TABLE IF NOT EXISTS discord_users (
+                                                            discord_id integer PRIMARY KEY
                                                         );"""
         sql_create_user_guilds_table = """ CREATE TABLE IF NOT EXISTS user_guilds (
-                                                            user_id integer,
+                                                            discord_id integer,
                                                             guild_id integer,
                                                             FOREIGN KEY (guild_id) REFERENCES guilds (guild_id)
                                                                 ON DELETE CASCADE ON UPDATE CASCADE,
-                                                            FOREIGN KEY (user_id) REFERENCES users (user_id)
+                                                            FOREIGN KEY (discord_id) REFERENCES discord_users (discord_id)
                                                                 ON DELETE CASCADE ON UPDATE CASCADE,
-                                                            PRIMARY KEY (user_id, guild_id)
+                                                            PRIMARY KEY (discord_id, guild_id)
                                                         ); """
         sql_create_roles_table = """ CREATE TABLE IF NOT EXISTS roles (
                                             role_id integer,
@@ -29,14 +29,14 @@ class SqlClass:
                                             PRIMARY KEY (role_id, guild_id)
                                         ); """
         sql_create_user_role_table = """ CREATE TABLE IF NOT EXISTS user_role (
-                                            user_id integer,
+                                            discord_id integer,
                                             role_id integer,
                                             guild_id integer,
                                             FOREIGN KEY (role_id, guild_id) REFERENCES roles (role_id, guild_id)
                                                 ON UPDATE CASCADE ON DELETE CASCADE,
-                                            FOREIGN KEY (user_id, guild_id) REFERENCES user_guilds (user_id, guild_id)
+                                            FOREIGN KEY (discord_id, guild_id) REFERENCES user_guilds (discord_id, guild_id)
                                                 ON UPDATE CASCADE ON DELETE CASCADE,
-                                            PRIMARY KEY (user_id, role_id, guild_id)
+                                            PRIMARY KEY (discord_id, role_id, guild_id)
                                         ); """
 
         # create a database connection
@@ -45,7 +45,7 @@ class SqlClass:
         if conn is not None:
             conn.execute("PRAGMA foreign_keys = ON")
             self.create_table(conn, sql_create_guilds_table)
-            self.create_table(conn, sql_create_users_table)
+            self.create_table(conn, sql_create_discord_users_table)
             self.create_table(conn, sql_create_user_guilds_table)
             self.create_table(conn, sql_create_roles_table)
             self.create_table(conn, sql_create_user_role_table)
@@ -181,44 +181,44 @@ class SqlClass:
 
     ############################################################
 
-    def get_user_roles(self, user_id: int, guild_id: int) -> list:
+    def get_user_roles(self, discord_id: int, guild_id: int) -> list:
         """gets user roles from database
-        :param user_id: the users' id
+        :param discord_id: the users' id
         :param guild_id: the current guild od
         :return:
         """
-        sql = """SELECT role_id FROM user_role WHERE user_id=? AND guild_id=?"""
-        return self.execute(sql, (user_id, guild_id))
+        sql = """SELECT role_id FROM user_role WHERE discord_id=? AND guild_id=?"""
+        return self.execute(sql, (discord_id, guild_id))
 
-    def add_user_roles(self, user_id: int, role_id: list, guild_id: int) -> None:
+    def add_user_roles(self, discord_id: int, role_id: list, guild_id: int) -> None:
         """Adds user roles to database
-        :param user_id:
+        :param discord_id:
         :param role_id:
         :param guild_id:
         :return:
         """
-        sql = """INSERT INTO user_role (`user_id`, `role_id`, `guild_id`) VALUES (?,?,?)"""
-        parms = [(user_id, role, guild_id) for role in role_id]
+        sql = """INSERT INTO user_role (`discord_id`, `role_id`, `guild_id`) VALUES (?,?,?)"""
+        parms = [(discord_id, role, guild_id) for role in role_id]
         self.execute_many(sql, parms)
 
-    def remove_user_roles(self, user_id: int, guild_id: int) -> None:
+    def remove_user_roles(self, discord_id: int, guild_id: int) -> None:
         """Removes user roles from database
-        :param user_id:
+        :param discord_id:
         :param guild_id:
         :return:
         """
-        sql = """DELETE FROM user_role WHERE `user_id` = ? AND `guild_id` = ?"""
-        self.execute(sql, (user_id, guild_id))
+        sql = """DELETE FROM user_role WHERE `discord_id` = ? AND `guild_id` = ?"""
+        self.execute(sql, (discord_id, guild_id))
 
     ############################################################
 
-    def add_user(self, user_id: int, guild_id: int) -> None:
+    def add_user(self, discord_id: int, guild_id: int) -> None:
         """Adds user to database
-        :param user_id: the discord id of the user
+        :param discord_id: the discord id of the user
         :param guild_id: the id of the current discord server
         :return:
         """
-        sql = """INSERT OR IGNORE INTO users (`user_id`) VALUES (?)"""
-        self.execute(sql, (user_id,))
-        sql = """INSERT OR IGNORE INTO user_guilds (`user_id`,`guild_id`) VALUES (?,?)"""
-        self.execute(sql, (user_id, guild_id))
+        sql = """INSERT OR IGNORE INTO discord_users (discord_id) VALUES (?)"""
+        self.execute(sql, (discord_id,))
+        sql = """INSERT OR IGNORE INTO user_guilds (discord_id,`guild_id`) VALUES (?,?)"""
+        self.execute(sql, (discord_id, guild_id))

@@ -4,19 +4,34 @@ import sqlite3
 class SqlClass:
     def __init__(self):
         self.database = 'datatables.db'
-        sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
-                                            user_id integer,
-                                            PRIMARY KEY (user_id)
+        sql_create_discord_users_table = """ CREATE TABLE IF NOT EXISTS discord_users (
+                                            discord_id integer,
+                                            PRIMARY KEY (discord_id)
                                         ); """
-        sql_alter_users_table_reddit = """ ALTER TABLE users ADD COLUMN reddit_name text"""
-        sql_alter_users_table_color = """ ALTER TABLE users ADD COLUMN color text"""
+        sql_create_reddit_users_table = """CREATE TABLE IF NOT EXISTS reddit_users (
+                                            reddit_name text,
+                                            color text,
+                                            PRIMARY KEY (reddit_name)
+                                        )"""
+        sql_create_reddit_discord_table = """CREATE TABLE IF NOT EXISTS reddit_discord (
+                                            reddit_name text,
+                                            discord_id integer,
+                                            FOREIGN KEY (reddit_name) REFERENCES reddit_users (reddit_name)
+                                                ON DELETE CASCADE ON UPDATE CASCADE,
+                                            FOREIGN KEY (discord_id) REFERENCES discord_users (discord_id)
+                                                ON DELETE CASCADE ON UPDATE CASCADE,
+                                            PRIMARY KEY (reddit_name, discord_id)
+                                        )"""
+
+
         # create a database connection
         conn = self.create_connection(self.database)
         # create tables
         if conn is not None:
-            self.create_table(conn, sql_create_users_table)
-            self.create_table(conn, sql_alter_users_table_reddit)
-            self.create_table(conn, sql_alter_users_table_color)
+            conn.execute("PRAGMA foreign_keys = ON")
+            self.create_table(conn, sql_create_discord_users_table)
+            self.create_table(conn, sql_create_reddit_users_table)
+            self.create_table(conn, sql_create_reddit_discord_table)
         else:
             print("Error! cannot create the database connection.")
 
@@ -92,17 +107,34 @@ class SqlClass:
         :param reddit_name: the user's reddit name
         :return: color
         """
-        sql = """SELECT color FROM users WHERE reddit_name = ?"""
+        sql = """SELECT color FROM reddit_users WHERE reddit_name = ?"""
         return self.execute(sql, (reddit_name,))
 
-    def add_user(self, discord_id: int, reddit_name: str, color: str) -> None:
+    def add_discord_user(self, discord_id: int) -> None:
+        """Adds new user to sql database
+        :param discord_id:
+
+        :return:
+        """
+        sql = """INSERT OR IGNORE INTO discord_users (`discord_id`) VALUES (?)"""
+        self.execute(sql, (discord_id,))
+
+    def add_reddit_user(self, reddit_name: str, color: str) -> None:
         """Adds new user to sql database
         :param discord_id:
         :param reddit_name:
         :param color:
         :return:
         """
-        sql = """INSERT OR IGNORE INTO users (`user_id`) VALUES (?)"""
-        self.execute(sql, (discord_id,))
-        sql = """UPDATE users SET reddit_name=?, color=? WHERE user_id = ?"""
-        self.execute(sql, (reddit_name, color, discord_id))
+        sql = """INSERT OR IGNORE INTO reddit_users (`reddit_name`, `color`) VALUES (?, ?)"""
+        self.execute(sql, (reddit_name, color))
+
+    def add_reddit_discord(self, discord_id: int, reddit_name: str) -> None:
+        """Adds new user to sql database
+        :param discord_id:
+        :param reddit_name:
+        :param color:
+        :return:
+        """
+        sql = """INSERT OR IGNORE INTO reddit_discord (`reddit_name`, `discord_id`) VALUES (?, ?)"""
+        self.execute(sql, (reddit_name, discord_id))
