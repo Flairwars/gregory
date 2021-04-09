@@ -5,7 +5,8 @@ import discord
 import aiohttp
 import re
 import io
-
+import cppimport.import_hook
+import colorapp
 
 class ImageEditing(commands.Cog, name='misc'):
     """
@@ -62,7 +63,7 @@ class ImageEditing(commands.Cog, name='misc'):
         return img, width, height
 
     @staticmethod
-    def ProcessRecolor(img: object, color: tuple, strength: float) -> object:
+    def ProcessRecolor(img, height, width, color: tuple, strength: float):
         """
         Background Recolor Processing
         :param img:
@@ -70,22 +71,22 @@ class ImageEditing(commands.Cog, name='misc'):
         :param strength:
         :return:
         """
-        for i in range(0, img.size[0]):  # process all pixels
-            for j in range(0, img.size[1]):
-                pixel_data = img.getpixel((i, j))
-
-                # NewValue = ((OldValue/255)*(1-strength)) + ((Recolor/255)*strength)
-                new_color = [
-                    abs(round(
-                        ((pixel_data[n] / 255) * (1 - strength) + (color[n] / 255) * strength) * 255
-                    )) for n in range(3)
-                ]
-
-                new_color.append(pixel_data[3])
-                new_color = tuple(new_color)
-
-                img.putpixel((i, j), new_color)
-
+        # for i in range(0, img.size[0]):  # process all pixels
+        #     for j in range(0, img.size[1]):
+        #         pixel_data = img.getpixel((i, j))
+        #
+        #         # NewValue = ((OldValue/255)*(1-strength)) + ((Recolor/255)*strength)
+        #         new_color = [
+        #             abs(round(
+        #                 ((pixel_data[n] / 255) * (1 - strength) + (color[n] / 255) * strength) * 255
+        #             )) for n in range(3)
+        #         ]
+        #
+        #         new_color.append(pixel_data[3])
+        #         new_color = tuple(new_color)
+        #
+        #         img.putpixel((i, j), new_color)
+        img = Image.frombytes('RGBA', img.size, colorapp.recolor(img.tobytes(), height, width, color[0], color[1], color[2], strength))
         return img
 
     @commands.command(aliases=['rc', 'recolour'])
@@ -135,7 +136,7 @@ class ImageEditing(commands.Cog, name='misc'):
 
         async with ctx.typing():  # typing to show code is working
             # runs in parallel to other code to prevent input output blocking
-            fn = partial(self.ProcessRecolor, img, addition_colors[color], strength)
+            fn = partial(self.ProcessRecolor, img, height, width, addition_colors[color], strength)
             img = await self.client.loop.run_in_executor(None, fn)
 
             # Send image to discord without saving to file
