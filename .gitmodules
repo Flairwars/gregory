@@ -1,4 +1,0 @@
-[submodule "src/colorapp/pybind"]
-	path = src/colorapp/pybind
-	url = ../../pybind/pybind11
-	branch = stable
