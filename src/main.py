@@ -14,8 +14,6 @@ if not colorapp_path in sys.path:
 
 # add discord bot perms
 intents = discord.Intents.default()
-intents.presences = True
-intents.members = True
 
 client = commands.Bot(command_prefix = '.', intents=intents)
 
