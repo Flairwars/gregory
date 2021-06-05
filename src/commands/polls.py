@@ -100,7 +100,7 @@ class Polls(commands.Cog, name='polls'):
         for emote, value in votes.items():
             description += f'{emote} {value[1]}: {value[0]}\n'
 
-        embed = discord.Embed(title=poll_info[0][0], color=discord.Color.gold(), description=description)
+        embed = discord.Embed(title=poll_info[0][0], color=discord.Color.green(), description=description)
         return embed
 
     @commands.Cog.listener()
@@ -197,7 +197,7 @@ class Polls(commands.Cog, name='polls'):
 
         footer = 'endpoll <id> (true for dms)'
 
-        embed = discord.Embed(title=name, color=discord.Color.gold(), description=description)
+        embed = discord.Embed(title=name, color=discord.Color.green(), description=description)
         embed.set_footer(text=footer)
         msg = await ctx.send(embed=embed)
         # adds a message id to the end of the poll
@@ -255,7 +255,7 @@ class Polls(commands.Cog, name='polls'):
             await msg.delete()
         else:
             # generates the embed
-            embed = discord.Embed(title="You have voted", colour=discord.Color.gold())
+            embed = discord.Embed(title="You have voted", colour=discord.Color.green())
             for poll in polls:
                 # generates the field
                 title = ''
@@ -345,7 +345,7 @@ class Polls(commands.Cog, name='polls'):
         for count in range(len(args)):
             description += f'{self.pollsigns[count]} {args[count]}\n\n'
 
-        embed = discord.Embed(title=name, color=discord.Color.gold(), description=description)
+        embed = discord.Embed(title=name, color=discord.Color.green(), description=description)
         msg = await ctx.send(embed=embed)
 
         # add reactions
@@ -372,9 +372,9 @@ class Polls(commands.Cog, name='polls'):
         🇰 11:00\n
         🇱 12:00\n
         """
-        embed = discord.Embed(title=f'{title} AM', color=discord.Color.gold(), description=description)
+        embed = discord.Embed(title=f'{title} AM', color=discord.Color.green(), description=description)
         msg = await ctx.send(embed=embed)
-        embed = discord.Embed(title=f'{title} PM', color=discord.Color.gold(), description=description)
+        embed = discord.Embed(title=f'{title} PM', color=discord.Color.green(), description=description)
         msg2 = await ctx.send(embed=embed)
 
         for emote in emotes:

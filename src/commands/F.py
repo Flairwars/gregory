@@ -9,6 +9,9 @@ st_id = 708108259348709479
 
 
 class F(commands.Cog, name='misc'):
+    """
+    Generic commands which do "things"
+    """
     def __init__(self, client):
         self.client = client
 
