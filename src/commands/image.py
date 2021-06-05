@@ -16,7 +16,7 @@ from colorapp import colorapp
 log = logging.getLogger(__name__)
 
 
-class ImageEditing(commands.Cog, name='image'):
+class ImageEditing(commands.Cog, name='misc'):
     """
     Image editing
     """

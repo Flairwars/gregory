@@ -8,10 +8,7 @@ respects_id = 587602797139329064
 st_id = 708108259348709479
 
 
-class F(commands.Cog, name='fun'):
-    """
-    F
-    """
+class F(commands.Cog, name='misc'):
     def __init__(self, client):
         self.client = client
 

@@ -5,7 +5,7 @@ from discord.ext import commands
 log = logging.getLogger(__name__)
 
 
-class Help(commands.Cog, name='Help'):
+class Help(commands.Cog, name='help'):
     """
     Help command
     """
@@ -16,6 +16,9 @@ class Help(commands.Cog, name='Help'):
 
     @commands.group(name="help", no_pm=True)
     async def help(self, ctx):
+        """custom help command
+        :param ctx:
+        """
         if ctx.invoked_subcommand is None or isinstance(ctx.invoked_subcommand, commands.Group):
             help_str = """```md\n**Categories**"""
 

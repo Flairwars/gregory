@@ -8,7 +8,7 @@ from sql.prefix import SqlClass
 log = logging.getLogger(__name__)
 
 
-class System(commands.Cog, name='system commands'):
+class System(commands.Cog, name='system'):
     """
     system commands
     """

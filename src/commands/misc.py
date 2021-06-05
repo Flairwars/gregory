@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class misc(commands.Cog, name='misc'):
     """
-    super fancy shmancy poll command
+    Generic commands which do "things"
     """
     def __init__(self, client):
         self.client = client

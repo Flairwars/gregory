@@ -22,7 +22,7 @@ class Count(commands.Cog, name='counting'):
         self.reddit = Reddit(
             client_id=REDDIT_ID,
             client_secret=REDDIT_SECRET,
-            user_agent='Yellow Beetlejuice Discord bot'
+            user_agent='Green Gregory Discord bot'
         )
         self.sql = SqlClass()
 

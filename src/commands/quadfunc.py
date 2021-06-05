@@ -6,7 +6,7 @@ from discord.ext import commands
 log = logging.getLogger(__name__)
 
 
-class quadfunc(commands.Cog, name='fun'):
+class quadfunc(commands.Cog, name='misc'):
     """
     Quadratic equation solver made by u/SomebodyNotFamous
     """
