@@ -168,7 +168,7 @@ class ImageEditing(commands.Cog, name='misc'):
         :return: embed with pfp
         """
         url = ctx.author.avatar_url if member is None else member.avatar_url
-        embed = discord.Embed(color=discord.Color.gold())
+        embed = discord.Embed(color=discord.Color.green())
         embed.set_image(url=url)
 
         await ctx.send(embed=embed)

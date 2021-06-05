@@ -7,6 +7,9 @@ log = logging.getLogger(__name__)
 
 
 class DiceRoll(commands.Cog, name='misc'):
+    """
+    Generic commands which do "things"
+    """
     def __init__(self, client):
         self.client = client
 
