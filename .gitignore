@@ -234,72 +234,72 @@ dkms.conf
 
 .idea
 
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
 
-# CMake
-cmake-build-*/
+# vscode
+.vscode
 
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
+# Prerequisites
+*.d
 
-# File-based project format
-*.iws
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
 
-# IntelliJ
-out/
+# Linker output
+*.ilk
+*.map
+*.exp
 
-# mpeltonen/sbt-idea plugin
-.idea_modules/
+# Precompiled Headers
+*.gch
+*.pch
 
-# JIRA plugin
-atlassian-ide-plugin.xml
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
 
-# Cursive Clojure plugin
-.idea/replstate.xml
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
 
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
 
-# Editor-based Rest Client
-.idea/httpRequests
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
 
-# Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.ser
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
 
-### CLion Patch ###
-# Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
+# Compiled Object files
+*.slo
 
-# *.iml
-# modules.xml
-# .idea/misc.xml
-# *.ipr
+# Fortran module files
+*.mod
+*.smod
 
-# Sonarlint plugin
-# https://plugins.jetbrains.com/plugin/7973-sonarlint
-.idea/**/sonarlint/
-
-# SonarQube Plugin
-# https://plugins.jetbrains.com/plugin/7238-sonarqube-community-plugin
-.idea/**/sonarIssues.xml
-
-# Markdown Navigator plugin
-# https://plugins.jetbrains.com/plugin/7896-markdown-navigator-enhanced
-.idea/**/markdown-navigator.xml
-.idea/**/markdown-navigator-enh.xml
-.idea/**/markdown-navigator/
-
-# Cache file creation bug
-# See https://youtrack.jetbrains.com/issue/JBR-2257
-.idea/$CACHE_FILE$
-
-# CodeStream plugin
-# https://plugins.jetbrains.com/plugin/12206-codestream
-.idea/codestream.xml
+# Compiled Static libraries
+*.lai
 
 # C++ compiled file
 src/colorapp/.rendered.colorapp.cpp

@@ -18,6 +18,7 @@ def get_prefix(client, message):
 intents = Intents.default()
 client = commands.Bot(command_prefix=get_prefix, intents=intents)
 
+
 # Load extensions
 log.debug("Loading default extensions...")
 if DEBUG is True:

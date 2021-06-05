@@ -4,6 +4,7 @@ import re
 from functools import partial
 
 import aiohttp
+
 # noinspection PyUnresolvedReferences
 import cppimport.import_hook
 import discord
