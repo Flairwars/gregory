@@ -49,5 +49,4 @@ RUN apk add --no-cache make \
 ### . Copy code
 COPY src/ .
 ### . Run
-ENTRYPOINT ["python", "-u"]
-CMD ["main.py"]
+CMD ["python", "-u", "main.py"]
