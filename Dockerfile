@@ -1,5 +1,5 @@
 ### 1. Get Linux
-FROM alpine:latest
+FROM alpine:3.12.3
 
 ### 2. Label
 LABEL maintainer="Blotz <https://github.com/blotz>"
