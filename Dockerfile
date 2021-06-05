@@ -2,7 +2,7 @@
 FROM alpine:latest
 
 ### 2. Label
-LABEL maintainer="Dockerfile created by Blotz <https://github.com/blotz>"
+LABEL maintainer="Blotz <https://github.com/blotz>"
 
 ### 3. Get python3 via the package manager
 RUN apk update \
@@ -43,14 +43,7 @@ RUN apk add --no-cache make \
   tiff-dev \
   tk-dev \
   zlib-dev \
-  # SQL Drivers
-  unixodbc \
-  postgresql-dev \
-  mariadb-dev \
-  psqlodbc \
-  pdns \
-  proftpd \
-&& pip3 install --user --no-cache-dir -r requirements.txt 
+&& pip3 install --user --no-cache-dir -r requirements.txt
 #&& apk del musl-dev freetype-dev fribidi-dev harfbuzz-dev jpeg-dev lcms2-dev openjpeg-dev tcl-dev tiff-dev tk-dev zlib-dev
 
 ### . Copy code
