@@ -303,3 +303,4 @@ fabric.properties
 
 # C++ compiled file
 src/colorapp/.rendered.colorapp.cpp
+.rendered.colorapp.cpp
