@@ -11,9 +11,9 @@ class SqlBaseCommands:
         conn = self.create_connection(self.database)
         # create tables
         if conn is not None:
-            conn.execute("PRAGMA foreign_keys = ON")
             for table in tables:
                 conn.execute(table)
+            conn.execute("PRAGMA foreign_keys = ON;")
         else:
             log.error("Error! cannot create the database connection.")
 
@@ -28,6 +28,7 @@ class SqlBaseCommands:
         try:
             # If you are testing and debugging, change which lines are commented out. you will have to do this for each sql file
             conn = sqlite3.connect(db_file)
+            conn.execute("PRAGMA foreign_keys = ON;")
             return conn
         except Exception as e:
             log.error(e)

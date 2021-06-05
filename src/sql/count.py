@@ -4,26 +4,26 @@ from sql.sql import SqlBaseCommands
 class SqlClass(SqlBaseCommands):
     def __init__(self):
         super().__init__(["""
-        CREATE TABLE IF NOT EXISTS discord_users (
-            discord_id integer,
-            PRIMARY KEY (discord_id)
-        );""",
-        """
-          CREATE TABLE IF NOT EXISTS reddit_users (
-              reddit_name text,
-              color text,
-              PRIMARY KEY (reddit_name)
-        );""",
-        """
-        CREATE TABLE IF NOT EXISTS reddit_discord (
-            reddit_name text,
-            discord_id integer,
-            FOREIGN KEY (reddit_name) REFERENCES reddit_users (reddit_name)
-                ON DELETE CASCADE ON UPDATE CASCADE,
-            FOREIGN KEY (discord_id) REFERENCES discord_users (discord_id)
-                ON DELETE CASCADE ON UPDATE CASCADE,
-            PRIMARY KEY (reddit_name, discord_id)
-        );"""])
+                            CREATE TABLE IF NOT EXISTS discord_users (
+                                discord_id integer,
+                                PRIMARY KEY (discord_id)
+                            );""",
+                          """
+                            CREATE TABLE IF NOT EXISTS reddit_users (
+                                reddit_name text,
+                                color text,
+                                PRIMARY KEY (reddit_name)
+                            );""",
+                          """
+                            CREATE TABLE IF NOT EXISTS reddit_discord (
+                                reddit_name text,
+                                discord_id integer,
+                                FOREIGN KEY (reddit_name) REFERENCES reddit_users (reddit_name)
+                                    ON DELETE CASCADE ON UPDATE CASCADE,
+                                FOREIGN KEY (discord_id) REFERENCES discord_users (discord_id)
+                                    ON DELETE CASCADE ON UPDATE CASCADE,
+                                PRIMARY KEY (reddit_name, discord_id)
+                            );"""])
 
     ############################################################
 
