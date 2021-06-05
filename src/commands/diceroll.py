@@ -1,5 +1,9 @@
-from discord.ext import commands
+import logging
 from random import randint
+
+from discord.ext import commands
+
+log = logging.getLogger(__name__)
 
 
 class DiceRoll(commands.Cog, name='misc'):
@@ -47,4 +51,9 @@ class DiceRoll(commands.Cog, name='misc'):
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(DiceRoll(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

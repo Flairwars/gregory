@@ -1,4 +1,8 @@
+import logging
+
 from discord.ext import commands
+
+log = logging.getLogger(__name__)
 allowedChannels = [588354715625193473, 579538738988711958]
 
 
@@ -57,4 +61,9 @@ class fun(commands.Cog, name='fun'):
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(fun(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

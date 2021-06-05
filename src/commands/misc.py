@@ -1,7 +1,11 @@
-from discord.ext import commands
-from PIL import ImageColor, Image
-import discord
 import io
+import logging
+
+import discord
+from PIL import ImageColor, Image
+from discord.ext import commands
+
+log = logging.getLogger(__name__)
 
 
 class misc(commands.Cog, name='misc'):
@@ -107,4 +111,9 @@ class misc(commands.Cog, name='misc'):
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(misc(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')
