@@ -1,6 +1,6 @@
 import asyncio
-import aiohttp
 
+import aiohttp
 from bs4 import BeautifulSoup
 
 

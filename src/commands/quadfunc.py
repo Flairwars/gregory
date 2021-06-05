@@ -1,19 +1,15 @@
+import logging
 import math
+
 from discord.ext import commands
 
+log = logging.getLogger(__name__)
 
-# TODO: check for redundant imports
 
-class quadfunc(commands.Cog, name='math'):
-    '''
-    Quadratic equation solver
-    Made by u/SomebodyNotFamous
-
-    Note:Im from Poland and this code was originaly written in Polish. I've tried to translate my code (and the messages the bot sends)
-    into english, howere there still may be some mistakes. If you notice any problems with the translations please let me know and I will
-    fix them ASAP. Note2:Because you cant just do " DELTA = B^2 - 4 * A * C " (or maybe you can and my brain is just smooth) i split
-    equations like these into smaller parts. For a example of this look at line 18.
-    '''
+class quadfunc(commands.Cog, name='misc'):
+    """
+    Quadratic equation solver made by u/SomebodyNotFamous
+    """
 
     def __init__(self, client):
         self.client = client
@@ -152,4 +148,9 @@ class quadfunc(commands.Cog, name='math'):
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(quadfunc(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

@@ -1,8 +1,12 @@
 import asyncio
+import logging
 
 import discord
 from discord.ext import commands
+
 from apis import urban, weather, wyr, constants, xkcd
+
+log = logging.getLogger(__name__)
 
 
 async def generate_urban_embed(definition, n, query):
@@ -159,5 +163,11 @@ class search(commands.Cog, name='fun'):
 
         await ctx.send(embed=embed)
 
+
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(search(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

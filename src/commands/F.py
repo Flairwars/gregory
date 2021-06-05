@@ -1,13 +1,14 @@
+import logging
 from random import randint
+
 from discord.ext import commands
+
+log = logging.getLogger(__name__)
 respects_id = 587602797139329064
 st_id = 708108259348709479
 
 
-class F(commands.Cog, name='fun'):
-    """
-    F
-    """
+class F(commands.Cog, name='misc'):
     def __init__(self, client):
         self.client = client
 
@@ -23,4 +24,9 @@ class F(commands.Cog, name='fun'):
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(F(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

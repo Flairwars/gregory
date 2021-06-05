@@ -1,22 +1,28 @@
-from discord.ext import commands
-from sql.count import SqlClass
-from praw import Reddit
-from decouple import config
+import logging
 from functools import partial
-import requests
+
 import discord
+import requests
+from discord.ext import commands
+from praw import Reddit
+
+from settings import (REDDIT_SECRET, REDDIT_ID)
+from sql.count import SqlClass
+
+log = logging.getLogger(__name__)
 
 
-class Count(commands.Cog, name='misc'):
+class Count(commands.Cog, name='counting'):
     """
     Counts different subreddits
     """
+
     def __init__(self, client):
         self.client = client
         self.reddit = Reddit(
-            client_id=config('REDDITID'),
-            client_secret=config('REDDITSECRET'),
-            user_agent='Gregory Discord bot'
+            client_id=REDDIT_ID,
+            client_secret=REDDIT_SECRET,
+            user_agent='Green Gregory Discord bot'
         )
         self.sql = SqlClass()
 
@@ -52,6 +58,8 @@ class Count(commands.Cog, name='misc'):
             "purple": purple_sub,
             "purp": purple_sub,
             "p": purple_sub,
+
+            "pink": green_sub
         }
 
     def get_hotposts(self, sub: str):
@@ -82,8 +90,10 @@ class Count(commands.Cog, name='misc'):
 
         msg = await ctx.send('Counting...')
 
+        log.debug('Getting hot posts')
         fn = partial(self.get_hotposts, sub[0])
         posts = await self.client.loop.run_in_executor(None, fn)
+        log.debug('Gotten hotposts. counting')
 
         # Include only the author names.
         # only green has proper css class names. as green will be using the command the most on their sub, it will be used to verify color
@@ -162,12 +172,16 @@ class Count(commands.Cog, name='misc'):
 
     @count.error
     async def _count(self, error, ctx):
-        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error,
-                                                                                    discord.errors.DiscordException):
+        if isinstance(error, commands.errors.MissingRequiredArgument) or isinstance(error, discord.errors.DiscordException):
             await ctx.send('`ERROR Missing Required Argument: .count yellow`')
         else:
-            await ctx.send(f'`ERROR: {type(error)}: {error}`')
+            await ctx.send(f'`ERROR: {type(error), error}`')
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(Count(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

@@ -1,7 +1,7 @@
 import asyncio
-import json
 
 import aiohttp
+
 
 async def get_weather_data(query):
     async with aiohttp.ClientSession() as session:

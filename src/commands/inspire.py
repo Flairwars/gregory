@@ -1,7 +1,10 @@
-from discord.ext import commands
-from discord import errors
-import aiohttp
+import logging
 
+import aiohttp
+from discord import errors
+from discord.ext import commands
+
+log = logging.getLogger(__name__)
 
 class inspire(commands.Cog, name='fun'):
     """
@@ -33,4 +36,9 @@ class inspire(commands.Cog, name='fun'):
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(inspire(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

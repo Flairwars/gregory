@@ -1,8 +1,8 @@
 import asyncio
-import json
 from random import randint
 
 import aiohttp
+
 
 async def get_data(id):
     async with aiohttp.ClientSession() as session:
