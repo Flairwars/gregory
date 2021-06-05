@@ -1,17 +1,26 @@
-from discord.ext import commands
-from PIL import Image, ImageColor
-from functools import partial
-import discord
-import aiohttp
-import re
 import io
-import cppimport.import_hook
-import colorapp
+import logging
+import re
+from functools import partial
 
-class ImageEditing(commands.Cog, name='misc'):
+import aiohttp
+
+# noinspection PyUnresolvedReferences
+import cppimport.import_hook
+import discord
+from PIL import Image, ImageColor
+from discord.ext import commands
+
+from colorapp import colorapp
+
+log = logging.getLogger(__name__)
+
+
+class ImageEditing(commands.Cog, name='image'):
     """
     Image editing
     """
+
     def __init__(self, client):
         self.client = client
 
@@ -67,12 +76,14 @@ class ImageEditing(commands.Cog, name='misc'):
         """
         Background Recolor Processing
         :param img:
+        :param height:
+        :param width:
         :param color:
         :param strength:
         :return:
         """
-        
         img = Image.frombytes('RGBA', img.size, colorapp.recolor(img.tobytes(), height, width, color[0], color[1], color[2], strength))
+
         return img
 
     @commands.command(aliases=['rc', 'recolour'])
@@ -167,8 +178,13 @@ class ImageEditing(commands.Cog, name='misc'):
         if isinstance(error, commands.errors.MemberNotFound):
             await ctx.send('`ERROR: member not found`')
         else:
-            print(error)
+            log.info(error)
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(ImageEditing(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

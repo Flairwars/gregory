@@ -1,14 +1,20 @@
+import logging
+
+import discord
 from discord.errors import DiscordException
 from discord.ext import commands
 from discord.utils import get
-import discord
-from sql.role import SqlClass # BITCH STOP COMPLAING YOU LITEREALYL WORK. DUMB ASS PROGRAMM
+
+from sql.role import SqlClass
+
+log = logging.getLogger(__name__)
 
 
 class Role(commands.Cog, name='role'):
     """
     Persistent roles
     """
+
     def __init__(self, client):
         self.client = client
         self.sql = SqlClass()
@@ -42,31 +48,6 @@ class Role(commands.Cog, name='role'):
 
         self.sql.remove_roles(guild_id, lst)
 
-    def _update_guild(self):
-        """
-        Updates Guilds in the database
-        :return:
-        """
-        guilds = self.client.guilds
-        guilds = [guild.id for guild in guilds]
-
-        db_guilds = self.sql.get_guilds()
-        db_guilds = [db_guilds[0] for db_guilds in db_guilds]
-
-        lst = []
-        for guild in guilds:
-            if guild not in db_guilds:
-                lst.append(guild)
-
-        self.sql.add_guilds(lst)
-
-        lst = []
-        for db_guild in db_guilds:
-            if db_guild not in guilds:
-                lst.append(db_guild)
-
-        self.sql.remove_guilds(lst)
-
     @commands.command(aliases=['clearroles', 'purgeroles'])
     @commands.has_permissions(administrator=True)
     async def removeroles(self, ctx, member: discord.Member = None):
@@ -96,7 +77,6 @@ class Role(commands.Cog, name='role'):
         :param member: The users whos roles are getting added
         :return: Adds the users roles and removes their roles from the database
         """
-        self._update_guild()
         self._update_roles(ctx.guild)
 
         user_id = member.id
@@ -117,12 +97,14 @@ class Role(commands.Cog, name='role'):
 
             # adds roles
             try:
+                log.debug('Adding roles to user')
                 await member.add_roles(*db_roles, reason="Automatically added roles")
+                log.debug('Deleting roles from database...')
+                self.sql.remove_user_roles(user_id, guild)
+                await message.edit(content=f"`updated {member.name}'s roles!`")
             except DiscordException as e:
-                print(e)
-
-            self.sql.remove_user_roles(user_id, guild)
-            await message.edit(content=f"`updated {member.name}'s roles!`")
+                log.debug(e)
+                await message.edit(content='`ERROR: please review logs`')
 
     @staticmethod
     @addroles.error
@@ -132,14 +114,13 @@ class Role(commands.Cog, name='role'):
         elif isinstance(error, commands.errors.MissingPermissions):
             await ctx.send('`MISSING PERMS: you need to be an administrator to run this command`')
         else:
-            print(error)
+            log.info(error)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         """
         adds member's roles to database when they leave
         """
-        self._update_guild()
         self._update_roles(member.guild)
 
         user_id = member.id
@@ -157,4 +138,9 @@ class Role(commands.Cog, name='role'):
 
 
 def setup(client):
+    log.debug(f'loading {__name__}')
     client.add_cog(Role(client))
+
+
+def teardown(client):
+    log.debug(f'{__name__} unloaded')

@@ -1,6 +1,6 @@
 //cppimport
-
 #include <pybind11/pybind11.h>
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -27,9 +27,6 @@ PYBIND11_MODULE(colorapp, m){
     m.def("recolor", &recolor_fun);
 }
 
-
 /*
-<%
-setup_pybind11(cfg)
-%>
+
 */

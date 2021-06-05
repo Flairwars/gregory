@@ -1,107 +1,29 @@
-import sqlite3
-import pymysql
-from decouple import config
+from sql.sql import SqlBaseCommands
 
-class SqlClass:
+
+class SqlClass(SqlBaseCommands):
     def __init__(self):
-        self.database = 'datatables.db'
-        sql_create_discord_users_table = """ CREATE TABLE IF NOT EXISTS discord_users (
-                                            discord_id integer,
-                                            PRIMARY KEY (discord_id)
-                                        ); """
-        sql_create_reddit_users_table = """CREATE TABLE IF NOT EXISTS reddit_users (
-                                            reddit_name text,
-                                            color text,
-                                            PRIMARY KEY (reddit_name)
-                                        )"""
-        sql_create_reddit_discord_table = """CREATE TABLE IF NOT EXISTS reddit_discord (
-                                            reddit_name text,
-                                            discord_id integer,
-                                            FOREIGN KEY (reddit_name) REFERENCES reddit_users (reddit_name)
-                                                ON DELETE CASCADE ON UPDATE CASCADE,
-                                            FOREIGN KEY (discord_id) REFERENCES discord_users (discord_id)
-                                                ON DELETE CASCADE ON UPDATE CASCADE,
-                                            PRIMARY KEY (reddit_name, discord_id)
-                                        )"""
-
-        # create a database connection
-        conn = self.create_connection(self.database)
-        # create tables
-        if conn is not None:
-            conn.execute("PRAGMA foreign_keys = ON")
-            self.create_table(conn, sql_create_discord_users_table)
-            self.create_table(conn, sql_create_reddit_users_table)
-            self.create_table(conn, sql_create_reddit_discord_table)
-        else:
-            print("Error! cannot create the database connection.")
-
-    @staticmethod
-    def create_connection(db_file):
-        """ create a database connection to the SQLite database
-            specified by db_file
-        :param db_file: database file
-        :return: Connection object or None
+        super().__init__(["""
+        CREATE TABLE IF NOT EXISTS discord_users (
+            discord_id integer,
+            PRIMARY KEY (discord_id)
+        );""",
         """
-        conn = None
-        try:
-            # If you are testing and debugging, change which lines are commented out. you will have to do this for each sql file
-            # conn = sqlite3.connect(db_file)
-            conn = pymysql.connect(host=config('SQLIP'), port=int(config('SQLPORT')), user=config('SQLUSER'), password=config('SQLPASS'),
-                                   database=config('SQLDATA'))
-            return conn
-        except Exception as e:
-            print(e)
-
-        return conn
-
-    @staticmethod
-    def create_table(conn, create_table_sql: str) -> None:
-        """ create a table from the create_table_sql statement
-        :param conn: Connection object
-        :param create_table_sql: a CREATE TABLE statement
-        :return:
+          CREATE TABLE IF NOT EXISTS reddit_users (
+              reddit_name text,
+              color text,
+              PRIMARY KEY (reddit_name)
+        );""",
         """
-        try:
-            c = conn.cursor()
-            c.execute(create_table_sql)
-        except Exception as e:
-            print(e)
-
-    def execute(self, sql: str, parms: tuple = ()) -> list:
-        """Executes a single command
-        :param sql:
-        :param parms:
-        :return:
-        """
-        conn = self.create_connection(self.database)
-
-        if conn is not None:
-            try:
-                c = conn.cursor()
-                c.execute(sql, parms)
-                data = c.fetchall()
-                conn.commit()
-                return data
-            except Exception as e:
-                print(e)
-
-    def execute_many(self, sql: str, parms: list) -> list:
-        """Executes a multi line command
-        :param sql: the sql command being run
-        :param parms: a list of tuples of information
-        :return: any output from the sql code
-        """
-        conn = self.create_connection(self.database)
-
-        if conn is not None:
-            try:
-                c = conn.cursor()
-                c.executemany(sql, parms)
-                data = c.fetchall()
-                conn.commit()
-                return data
-            except Exception as e:
-                print(e)
+        CREATE TABLE IF NOT EXISTS reddit_discord (
+            reddit_name text,
+            discord_id integer,
+            FOREIGN KEY (reddit_name) REFERENCES reddit_users (reddit_name)
+                ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (discord_id) REFERENCES discord_users (discord_id)
+                ON DELETE CASCADE ON UPDATE CASCADE,
+            PRIMARY KEY (reddit_name, discord_id)
+        );"""])
 
     ############################################################
 
