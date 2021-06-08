@@ -36,13 +36,11 @@ if DEBUG is True:
         handlers=__handlers
     )
     # Set Logger Level
-    logger = logging.getLogger("discord")
-    logger.setLevel(logging.WARN)
-    logger = logging.getLogger("apscheduler.scheduler:Scheduler")
-    logger.setLevel(logging.WARN)
+    logging.root.setLevel(logging.DEBUG)
+    logging.getLogger("discord").setLevel(logging.WARN)
+    logging.getLogger("apscheduler.scheduler:Scheduler").setLevel(logging.WARN)
+    logging.getLogger("cppimport.import_hook").setLevel(logging.ERROR)
     log.info("Debug Mode Enabled")
-    logger = logging.getLogger("cppimport.import_hook")
-    logger.setLevel(logging.ERROR)
 else:
     # noinspection PyArgumentList
     logging.basicConfig(
@@ -50,12 +48,10 @@ else:
         format=__format,
         handlers=__handlers
     )
-    logger = logging.getLogger("discord")
-    logger.setLevel(logging.ERROR)
-    logger = logging.getLogger("apscheduler.scheduler:Scheduler")
-    logger.setLevel(logging.ERROR)
-    logger = logging.getLogger("cppimport.import_hook")
-    logger.setLevel(logging.ERROR)
+    logging.root.setLevel(logging.INFO)
+    logging.getLogger("discord").setLevel(logging.ERROR)
+    logging.getLogger("apscheduler.scheduler:Scheduler").setLevel(logging.ERROR)
+    logging.getLogger("cppimport.import_hook").setLevel(logging.ERROR)
 
 # Check for token and exit if not exists
 if TOKEN is None:
