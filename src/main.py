@@ -16,6 +16,7 @@ def get_prefix(client, message):
 
 # add discord bot perms
 intents = Intents.default()
+intents.members = True  # needed for persistant roles. bot cant access member roles otherwise
 client = commands.Bot(command_prefix=get_prefix, intents=intents)
 
 
