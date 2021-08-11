@@ -136,13 +136,14 @@ class Count(commands.Cog, name='counting'):
                         url = f'https://api.flairwars.com/users?RedditUsername={author[0]}'
                         header = {"accept": "application/json"}
                         r = requests.get(url, headers=header)
-                        userinfo = r.json()
-                        if userinfo:
-                            # print(userinfo)
-                            user_color = userinfo[0]['FlairwarsColor']
-                            self.sql.add_discord_user(userinfo[0]['DiscordMemberID'])
-                            self.sql.add_reddit_user(author[0], userinfo[0]['FlairwarsColor'])
-                            self.sql.add_reddit_discord(userinfo[0]['DiscordMemberID'], author[0])
+                        if r.status_code == 200:
+                            userinfo = r.json()
+                            if userinfo:
+                                # print(userinfo)
+                                user_color = userinfo[0]['FlairwarsColor']
+                                self.sql.add_discord_user(userinfo[0]['DiscordMemberID'])
+                                self.sql.add_reddit_user(author[0], userinfo[0]['FlairwarsColor'])
+                                self.sql.add_reddit_discord(userinfo[0]['DiscordMemberID'], author[0])
                         else:
                             # if flairapi doesnt have it, it will try and parse the information from the posts
                             # this is unreliable and inconsistent. it will only work on green
